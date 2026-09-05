@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String                 @id @default(uuid())
+  email           String                 @unique
+  passwordHash    String
+  name            String
+  role            String                 @default("ADMIN")
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  statusHistories BookingStatusHistory[]
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  icon      String?
+  image     String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id           String         @id @default(uuid())
+  name         String
+  slug         String         @unique
+  categoryId   String
+  category     Category       @relation(fields: [categoryId], references: [id])
+  pricePerDay  Float
+  stock        Int            @default(0)
+  description  String
+  capacity     String?
+  weight       String?
+  packageItems String?
+  terms        String?
+  isActive     Boolean        @default(true)
+  isPopular    Boolean        @default(false)
+  images       ProductImage[]
+  bookingItems BookingItem[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String
+  email     String?
+  address   String
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Booking {
+  id              String                 @id @default(uuid())
+  bookingCode     String                 @unique
+  customerId      String
+  customer        Customer               @relation(fields: [customerId], references: [id])
+  startDate       DateTime
+  endDate         DateTime
+  durationDays    Int
+  subtotal        Float
+  totalAmount     Float
+  status          String                 @default("MENUNGGU")
+  paymentStatus   String                 @default("BELUM_DIBAYAR")
+  notes           String?
+  items           BookingItem[]
+  payments        Payment[]
+  invoice         Invoice?
+  statusHistories BookingStatusHistory[]
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+}
+
+model BookingItem {
+  id          String   @id @default(uuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  pricePerDay Float
+  subtotal    Float
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  bookingId     String
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount        Float
+  paymentMethod String
+  paymentType   String
+  status        String   @default("LUNAS")
+  paymentDate   DateTime @default(now())
+  notes         String?
+  createdAt     DateTime @default(now())
+}
+
+model Invoice {
+  id              String   @id @default(uuid())
+  invoiceNumber   String   @unique
+  bookingId       String   @unique
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  issueDate       DateTime @default(now())
+  totalAmount     Float
+  dpAmount        Float    @default(0)
+  remainingAmount Float    @default(0)
+  status          String   @default("DRAFT")
+  createdAt       DateTime @default(now())
+}
+
+model BookingStatusHistory {
+  id          String   @id @default(uuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status      String
+  notes       String?
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Setting {
+  id                 String   @id @default("default")
+  storeName          String   @default("Lembah Damar Outdoor")
+  logoUrl            String?
+  description        String?  @default("Penyewaan alat camping & outdoor terpercaya")
+  address            String?  @default("Jl. Raya Puncak KM 77, Bogor, Jawa Barat")
+  waNumber           String   @default("6281563105682")
+  email              String?  @default("info@lembahdamaroutdoor.com")
+  instagram          String?  @default("@lembahdamar_outdoor")
+  operationalHours   String?  @default("Setiap Hari: 08.00 - 20.00 WIB")
+  bankDetails        String?  @default("BCA 1234567890 a.n Lembah Damar Outdoor\nMandiri 0987654321 a.n Lembah Damar Outdoor")
+  qrisImage          String?
+  rentalTerms        String?  @default("1. Wajib menunjukkan e-KTP/SIM asli saat pengambilan.\n2. Pembayaran DP minimal 50% saat konfirmasi booking.\n3. Pengembalian barang maksimal jam 20.00 WIB pada hari terakhir sewa.")
+  cancellationPolicy String?  @default("Pembatalan H-2 DP dikembalikan 100%. Pembatalan H-1 DP hangus 50%. Pembatalan pada hari H DP hangus 100%.")
+  lateFeePerDay      Float    @default(20000)
+  damageFeeTerms     String?  @default("Kerusakan ringan dikenakan biaya servis sesuai perbaikan. Barang hilang/rusak total wajib mengganti seharga unit baru.")
+  updatedAt          DateTime @updatedAt
+}
