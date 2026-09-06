@@ -34,10 +34,8 @@ interface CatalogViewProps {
   initialCategory?: string;
 }
 
-export function CatalogView({ products, categories, initialCategory }: CatalogViewProps) {
+export function CatalogView({ products }: CatalogViewProps) {
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || "all");
-  const [maxPrice, setMaxPrice] = useState<number>(100000);
   const [sortBy, setSortBy] = useState<"popular" | "price-asc" | "price-desc" | "name">("popular");
   const [addedItemIds, setAddedItemIds] = useState<string[]>([]);
 
@@ -47,9 +45,7 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
       .filter((p) => {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
           p.description.toLowerCase().includes(search.toLowerCase());
-        const matchesCategory = selectedCategory === "all" || p.category.slug === selectedCategory;
-        const matchesPrice = p.pricePerDay <= maxPrice;
-        return matchesSearch && matchesCategory && matchesPrice;
+        return matchesSearch;
       })
       .sort((a, b) => {
         if (sortBy === "price-asc") return a.pricePerDay - b.pricePerDay;
@@ -57,7 +53,7 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
         if (sortBy === "name") return a.name.localeCompare(b.name);
         return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
       });
-  }, [products, search, selectedCategory, maxPrice, sortBy]);
+  }, [products, search, sortBy]);
 
   const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
@@ -115,14 +111,14 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-28 sm:pb-16 space-y-6 sm:space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 pb-28 sm:pb-16 space-y-4 sm:space-y-8">
       {/* Header Banner */}
-      <div className="bg-[#1C1C1C] text-white p-6 sm:p-12 rounded-3xl relative overflow-hidden shadow-xl border border-[#282828]">
-        <div className="relative z-10 max-w-2xl space-y-2 sm:space-y-3">
-          <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-widest text-[#D96C3F]">
+      <div className="bg-[#1C1C1C] text-white p-5 sm:p-12 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-xl border border-[#282828]">
+        <div className="relative z-10 max-w-2xl space-y-1.5 sm:space-y-3">
+          <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#D96C3F]">
             Katalog Sewa Outdoor
           </span>
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+          <h1 className="text-xl sm:text-4xl font-extrabold tracking-tight">
             Semua Peralatan Camping
           </h1>
           <p className="text-[#F7F5F0]/80 text-xs sm:text-base leading-relaxed">
@@ -134,29 +130,28 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
         </div>
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-[#EFECE6] shadow-xs space-y-5 sm:space-y-6">
-        {/* Search & Sort Row */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-center">
+      {/* Filter Toolbar (Simple Search & Sort Only) */}
+      <div className="bg-white p-3.5 sm:p-6 rounded-2xl border border-[#EFECE6] shadow-xs">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-4 items-center">
           {/* Search Bar */}
           <div className="md:col-span-8 relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-stone-400" />
             <input
               type="text"
-              placeholder="Cari produk sewa (misal: Tenda, Carrier, Kompor)..."
+              placeholder="Cari alat camping (tenda, carrier, kompor)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-[#F7F5F0] border border-[#EFECE6] rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#D96C3F] focus:bg-white transition-all"
+              className="w-full pl-10 sm:pl-11 pr-4 py-2 sm:py-3 bg-[#F7F5F0] border border-[#EFECE6] rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#D96C3F] focus:bg-white transition-all"
             />
           </div>
 
           {/* Sorting */}
           <div className="md:col-span-4 relative">
-            <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+            <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-stone-400" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="w-full pl-10 pr-8 py-2.5 sm:py-3 bg-[#F7F5F0] border border-[#EFECE6] rounded-xl text-xs sm:text-sm font-semibold text-[#1C1C1C] focus:outline-none focus:ring-2 focus:ring-[#D96C3F] focus:bg-white appearance-none transition-all"
+              className="w-full pl-9 sm:pl-10 pr-8 py-2 sm:py-3 bg-[#F7F5F0] border border-[#EFECE6] rounded-xl text-xs sm:text-sm font-semibold text-[#1C1C1C] focus:outline-none focus:ring-2 focus:ring-[#D96C3F] focus:bg-white appearance-none transition-all"
             >
               <option value="popular">Urutkan: Terpopuler</option>
               <option value="price-asc">Harga: Terendah ke Tertinggi</option>
@@ -166,88 +161,30 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
           </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="space-y-2">
-          <span className="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider block">
-            Filter Kategori
-          </span>
-          <div className="flex overflow-x-auto pb-1 gap-2 sm:flex-wrap no-scrollbar">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap ${
-                selectedCategory === "all"
-                  ? "bg-[#D96C3F] text-white shadow-xs"
-                  : "bg-[#F7F5F0] text-stone-700 hover:bg-[#EFECE6]"
-              }`}
-            >
-              Semua Kategori
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.slug)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap ${
-                  selectedCategory === cat.slug
-                    ? "bg-[#D96C3F] text-white shadow-xs"
-                    : "bg-[#F7F5F0] text-stone-700 hover:bg-[#EFECE6]"
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Price Slider */}
-        <div className="pt-2 border-t border-[#EFECE6] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-3 w-full max-w-xs">
-            <Tag className="h-4 w-4 text-[#D96C3F] shrink-0" />
-            <div className="w-full">
-              <div className="flex justify-between text-xs font-bold text-stone-600 mb-1">
-                <span>Maksimal Harga / Hari:</span>
-                <span className="text-[#D96C3F] font-extrabold">{formatRupiah(maxPrice)}</span>
-              </div>
-              <input
-                type="range"
-                min="5000"
-                max="100000"
-                step="5000"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-[#D96C3F] cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <div className="text-xs text-stone-500 font-medium">
-            Menampilkan <span className="font-extrabold text-[#1C1C1C]">{filteredProducts.length}</span> produk
-          </div>
+        <div className="mt-3 text-[11px] sm:text-xs text-stone-500 font-medium text-right">
+          Menampilkan <span className="font-extrabold text-[#1C1C1C]">{filteredProducts.length}</span> produk
         </div>
       </div>
 
-      {/* Product Grid */}
+      {/* Product Grid (2 columns on mobile, 4 columns on desktop) */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-3xl p-16 text-center border border-[#EFECE6] space-y-4">
-          <div className="w-16 h-16 bg-[#FDF3EE] text-[#D96C3F] rounded-full flex items-center justify-center mx-auto">
-            <Search className="h-8 w-8" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-8 sm:p-16 text-center border border-[#EFECE6] space-y-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#FDF3EE] text-[#D96C3F] rounded-full flex items-center justify-center mx-auto">
+            <Search className="h-6 w-6 sm:h-8 sm:w-8" />
           </div>
-          <h3 className="text-xl font-bold text-[#1C1C1C]">Tidak ada produk ditemukan</h3>
-          <p className="text-stone-500 text-sm max-w-sm mx-auto">
-            Coba ubah kata kunci pencarian atau atur ulang filter kategori dan batas harga.
+          <h3 className="text-base sm:text-xl font-bold text-[#1C1C1C]">Tidak ada produk ditemukan</h3>
+          <p className="text-stone-500 text-xs sm:text-sm max-w-sm mx-auto">
+            Coba ubah kata kunci pencarian Anda.
           </p>
           <button
-            onClick={() => {
-              setSearch("");
-              setSelectedCategory("all");
-              setMaxPrice(100000);
-            }}
-            className="inline-flex items-center space-x-2 text-xs font-bold bg-[#D96C3F] hover:bg-[#C05A2E] text-white px-5 py-2.5 rounded-xl transition-all"
+            onClick={() => setSearch("")}
+            className="inline-flex items-center space-x-2 text-xs font-bold bg-[#D96C3F] hover:bg-[#C05A2E] text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl transition-all"
           >
-            <span>Reset All Filter</span>
+            <span>Reset Pencarian</span>
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
           {filteredProducts.map((product) => {
             const primaryImg =
               product.images.find((img) => img.isPrimary)?.url ||
@@ -257,61 +194,61 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
             return (
               <div
                 key={product.id}
-                className="group bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+                className="group bg-white rounded-xl sm:rounded-2xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Image & Badges */}
-                <div className="relative h-48 w-full overflow-hidden bg-stone-100">
+                <div className="relative h-32 sm:h-48 w-full overflow-hidden bg-stone-100">
                   <img
                     src={primaryImg}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-2.5 left-2.5 bg-black/85 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-xs">
+                  <div className="absolute top-2 left-2 bg-black/85 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full backdrop-blur-xs max-w-[100px] truncate">
                     {product.category.name}
                   </div>
                   {product.stock > 0 ? (
-                    <div className="absolute top-2.5 right-2.5 bg-white/95 text-[#FF5524] text-[10px] font-extrabold px-2.5 py-1 rounded-lg border border-stone-200 shadow-xs">
+                    <div className="absolute top-2 right-2 bg-white/95 text-[#FF5524] text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-200 shadow-xs">
                       Stok: {product.stock}
                     </div>
                   ) : (
-                    <div className="absolute top-2.5 right-2.5 bg-rose-900/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg">
-                      Stok Habis
+                    <div className="absolute top-2 right-2 bg-rose-900/90 text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                      Habis
                     </div>
                   )}
                 </div>
 
                 {/* Info & Price */}
-                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="p-2.5 sm:p-4 space-y-2 sm:space-y-3 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-extrabold text-stone-900 text-sm sm:text-base group-hover:text-[#FF5524] transition-colors line-clamp-1">
+                    <h3 className="font-extrabold text-stone-900 text-xs sm:text-base group-hover:text-[#FF5524] transition-colors line-clamp-1">
                       {product.name}
                     </h3>
-                    <p className="text-[11px] text-stone-500 mt-1 line-clamp-2 leading-relaxed">
+                    <p className="hidden sm:block text-[11px] text-stone-500 mt-1 line-clamp-2 leading-relaxed">
                       {product.description}
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+                  <div className="pt-2 sm:pt-3 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
                     <div>
-                      <span className="text-[10px] font-bold text-stone-400 block">Sewa / Hari</span>
-                      <span className="text-sm sm:text-base font-black text-[#FF5524]">
+                      <span className="text-[9px] sm:text-[10px] font-bold text-stone-400 block">Sewa / Hari</span>
+                      <span className="text-xs sm:text-base font-black text-[#FF5524]">
                         {formatRupiah(product.pricePerDay)}
                       </span>
                     </div>
 
-                    <div className="flex items-center space-x-1.5">
+                    <div className="flex items-center space-x-1 w-full sm:w-auto">
                       <Link
                         href={`/produk/${product.slug}`}
-                        className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition-colors shrink-0"
+                        className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg sm:rounded-xl transition-colors shrink-0"
                         title="Lihat Detail Produk"
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Link>
 
                       <button
                         onClick={(e) => handleQuickAdd(product, e)}
                         disabled={product.stock <= 0}
-                        className={`inline-flex items-center space-x-1 px-3 py-2 rounded-xl font-black text-xs shadow-xs transition-all cursor-pointer shrink-0 ${
+                        className={`flex-1 sm:flex-none inline-flex items-center justify-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl font-black text-[10px] sm:text-xs shadow-xs transition-all cursor-pointer ${
                           addedItemIds.includes(product.id)
                             ? "bg-emerald-600 text-white"
                             : "bg-[#FF5524] hover:bg-[#E04618] disabled:bg-stone-300 text-white"
@@ -319,12 +256,12 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
                       >
                         {addedItemIds.includes(product.id) ? (
                           <>
-                            <Check className="h-3.5 w-3.5" />
+                            <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             <span>+ Sewa</span>
                           </>
                         ) : (
                           <>
-                            <Plus className="h-3.5 w-3.5" />
+                            <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             <span>+ Sewa</span>
                           </>
                         )}
