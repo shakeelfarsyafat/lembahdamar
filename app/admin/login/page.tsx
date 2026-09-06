@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mountain, Lock, User, ArrowRight, AlertCircle } from "lucide-react";
+import { Mountain, Lock, User, ArrowRight, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setErrorMsg("");
+    setSuccessMsg("");
     setLoading(true);
 
     try {
@@ -25,13 +27,16 @@ export default function AdminLoginPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Login gagal. Periksa username dan password Anda.");
+        throw new Error(data.error || "Gagal masuk. Username atau kata sandi Anda salah.");
       }
 
-      router.push("/admin");
-      router.refresh();
+      setSuccessMsg("Autentikasi Berhasil! Mengalihkan ke Dashboard...");
+      setTimeout(() => {
+        router.push("/admin");
+        router.refresh();
+      }, 900);
     } catch (err: any) {
-      setError(err.message);
+      setErrorMsg(err.message);
     } finally {
       setLoading(false);
     }
@@ -39,6 +44,21 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-[#1C1C1C] flex flex-col justify-center items-center px-4 py-12 font-sans relative overflow-hidden">
+      {/* Toast Notification Top Bar */}
+      {successMsg && (
+        <div className="fixed top-6 z-50 bg-emerald-950 border border-emerald-600 text-emerald-100 px-6 py-3.5 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs sm:text-sm font-extrabold animate-bounce">
+          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="fixed top-6 z-50 bg-rose-950 border border-rose-700 text-rose-100 px-6 py-3.5 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs sm:text-sm font-extrabold">
+          <XCircle className="h-5 w-5 text-rose-400 shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
       {/* Dynamic Ambient Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D96C3F]/15 rounded-full blur-[120px] pointer-events-none" />
 
@@ -60,10 +80,10 @@ export default function AdminLoginPage() {
 
         {/* Login Box */}
         <div className="bg-[#242424] border border-[#333333] p-8 rounded-3xl shadow-2xl space-y-6">
-          {error && (
+          {errorMsg && (
             <div className="bg-rose-950/80 border border-rose-800 text-rose-300 p-3.5 rounded-2xl text-xs font-semibold flex items-center space-x-2">
               <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
-              <span>{error}</span>
+              <span>{errorMsg}</span>
             </div>
           )}
 
