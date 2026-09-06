@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         paymentStatus,
         notes: validated.customerNotes || "Pesanan dibuat manual oleh Admin",
         items: {
-          create: validated.items.map((item) => ({
+          create: validated.items.map((item: { productId: string; quantity: number; pricePerDay: number; subtotal: number }) => ({
             productId: item.productId,
             quantity: item.quantity,
             pricePerDay: item.pricePerDay,

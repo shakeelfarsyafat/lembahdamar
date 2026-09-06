@@ -24,7 +24,13 @@ interface Booking {
   _count: { items: number };
 }
 
-export function BookingsTable({ bookings: initialData }: { bookings: Booking[] }) {
+export function BookingsTable({
+  bookings: initialData,
+  products,
+}: {
+  bookings: Booking[];
+  products?: any[];
+}) {
   const [bookings, setBookings] = useState(initialData);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -65,6 +71,7 @@ export function BookingsTable({ bookings: initialData }: { bookings: Booking[] }
       <CreateBookingModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
+        products={products}
       />
 
       {/* Toolbar */}

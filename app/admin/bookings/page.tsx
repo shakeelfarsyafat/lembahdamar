@@ -4,13 +4,20 @@ import { BookingsTable } from "@/components/admin/bookings-table";
 export const revalidate = 0;
 
 export default async function AdminBookingsPage() {
-  const bookings = await db.booking.findMany({
-    include: {
-      customer: true,
-      _count: { select: { items: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [bookings, products] = await Promise.all([
+    db.booking.findMany({
+      include: {
+        customer: true,
+        _count: { select: { items: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.product.findMany({
+      where: { isActive: true },
+      include: { category: true, images: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -23,7 +30,7 @@ export default async function AdminBookingsPage() {
         </p>
       </div>
 
-      <BookingsTable bookings={bookings} />
+      <BookingsTable bookings={bookings} products={products as any} />
     </div>
   );
 }

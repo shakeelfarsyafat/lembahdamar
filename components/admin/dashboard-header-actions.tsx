@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Plus, Package, ShoppingBag } from "lucide-react";
 import { CreateBookingModal } from "@/components/admin/create-booking-modal";
 
-export function DashboardHeaderActions() {
+export function DashboardHeaderActions({ products }: { products?: any[] }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   return (
@@ -13,6 +13,7 @@ export function DashboardHeaderActions() {
       <CreateBookingModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
+        products={products}
       />
 
       <button

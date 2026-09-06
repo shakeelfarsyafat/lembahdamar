@@ -26,6 +26,7 @@ export default async function AdminDashboardPage() {
     paymentsSum,
     recentBookings,
     topProducts,
+    allProducts,
   ] = await Promise.all([
     db.product.count({ where: { isActive: true } }),
     db.booking.count(),
@@ -60,6 +61,11 @@ export default async function AdminDashboardPage() {
         category: true,
         _count: { select: { bookingItems: true } },
       },
+    }),
+    db.product.findMany({
+      where: { isActive: true },
+      include: { category: true, images: true },
+      orderBy: { name: "asc" },
     }),
   ]);
 
@@ -122,7 +128,7 @@ export default async function AdminDashboardPage() {
             Ringkasan performa penyewaan alat outdoor Lembah Damar secara realtime.
           </p>
         </div>
-        <DashboardHeaderActions />
+        <DashboardHeaderActions products={allProducts as any} />
       </div>
 
       {/* Metrics Cards Grid */}

@@ -19,8 +19,24 @@ const productSchema = z.object({
   terms: z.string().optional(),
   isActive: z.boolean().default(true),
   isPopular: z.boolean().default(false),
-  images: z.array(z.string()).min(1, "Minimal 1 foto produk"),
+  images: z.array(z.string()).default([]),
 });
+
+export async function GET(request: NextRequest) {
+  try {
+    const products = await db.product.findMany({
+      include: {
+        category: true,
+        images: true,
+      },
+      orderBy: { name: "asc" },
+    });
+    return NextResponse.json({ success: true, products });
+  } catch (error) {
+    console.error("Get products error:", error);
+    return NextResponse.json({ error: "Gagal mengambil daftar produk" }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   const session = await verifyAdminSession();
