@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { formatRupiah } from "@/lib/whatsapp";
-import { Mountain, Printer, ArrowLeft, Download, CheckCircle2 } from "lucide-react";
+import { Mountain, Printer, ArrowLeft } from "lucide-react";
 
 interface InvoiceData {
   id: string;
@@ -55,20 +55,46 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Embedded Print CSS */}
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
+          }
+          body {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .no-print, header, aside, nav, button {
+            display: none !important;
+          }
+          .invoice-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+            padding: 20px !important;
+            border-radius: 0 !important;
+            width: 100% !important;
+          }
+        }
+      `}</style>
+
       {/* Top Bar Action (Hidden on Print) */}
       <div className="no-print flex items-center justify-between bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
         <Link
-          href="/admin/invoices"
+          href="/admin/customers"
           className="inline-flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-slate-900"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Kembali ke Daftar Invoice</span>
+          <span>Kembali ke Data Customer</span>
         </Link>
 
         <div className="flex space-x-3">
           <button
             onClick={handlePrint}
-            className="inline-flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-6 py-3 rounded-xl text-xs shadow-md transition-all"
+            className="inline-flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-6 py-3 rounded-xl text-xs shadow-md transition-all cursor-pointer"
           >
             <Printer className="h-4 w-4" />
             <span>Cetak Struk / Download PDF</span>
@@ -79,10 +105,10 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
       {/* Invoice Document Body */}
       <div className="invoice-card bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 shadow-xl space-y-8 text-slate-900">
         {/* Header Branding */}
-        <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-slate-900 pb-6 gap-6">
+        <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 gap-6">
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <div className="bg-emerald-950 text-white p-2.5 rounded-xl">
+              <div className="bg-emerald-950 text-white p-2.5 rounded-xl print:bg-black">
                 <Mountain className="h-7 w-7" />
               </div>
               <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 uppercase">
@@ -97,8 +123,8 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
             </div>
           </div>
 
-          <div className="sm:text-right space-y-1">
-            <span className="text-xs font-extrabold text-emerald-800 uppercase tracking-widest block">
+          <div className="text-right space-y-1">
+            <span className="text-xs font-extrabold text-emerald-800 uppercase tracking-widest block print:text-black">
               INVOICE RESMI PENYEWAAN
             </span>
             <span className="text-2xl font-extrabold text-slate-900 font-mono block">
@@ -111,8 +137,8 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
               <span
                 className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold ${
                   invoice.booking.paymentStatus === "LUNAS"
-                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                    : "bg-blue-100 text-blue-800 border border-blue-300"
+                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300 print:border-black print:text-black"
+                    : "bg-amber-100 text-amber-800 border border-amber-300 print:border-black print:text-black"
                 }`}
               >
                 STATUS: {invoice.booking.paymentStatus}
@@ -122,9 +148,9 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
         </div>
 
         {/* Customer & Period Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs bg-slate-50 p-6 rounded-2xl border border-slate-100">
+        <div className="grid grid-cols-2 gap-8 text-xs bg-slate-50 p-6 rounded-2xl border border-slate-100 print:bg-white print:border-slate-300">
           <div className="space-y-1.5">
-            <span className="text-slate-400 font-extrabold uppercase tracking-wider block">
+            <span className="text-slate-400 font-extrabold uppercase tracking-wider block print:text-slate-700">
               Penyewa (Customer)
             </span>
             <span className="font-extrabold text-slate-900 text-sm block">
@@ -138,15 +164,15 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
             </span>
           </div>
 
-          <div className="space-y-1.5 sm:text-right">
-            <span className="text-slate-400 font-extrabold uppercase tracking-wider block">
+          <div className="space-y-1.5 text-right">
+            <span className="text-slate-400 font-extrabold uppercase tracking-wider block print:text-slate-700">
               Periode Sewa Alat
             </span>
             <span className="font-extrabold text-slate-900 text-sm block">
               {new Date(invoice.booking.startDate).toLocaleDateString("id-ID")} s/d{" "}
               {new Date(invoice.booking.endDate).toLocaleDateString("id-ID")}
             </span>
-            <span className="text-emerald-800 font-extrabold text-xs block">
+            <span className="text-emerald-800 font-extrabold text-xs block print:text-black">
               Durasi Total: {invoice.booking.durationDays} Hari
             </span>
             <span className="text-slate-500 font-mono text-[11px] block">
@@ -162,7 +188,7 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
           </h3>
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b-2 border-slate-200 bg-slate-100 text-[11px] font-extrabold uppercase text-slate-600">
+              <tr className="border-b-2 border-slate-900 bg-slate-100 text-[11px] font-extrabold uppercase text-slate-700 print:bg-slate-200">
                 <th className="py-3 px-4">Nama Peralatan</th>
                 <th className="py-3 px-4 text-center">Jumlah (Qty)</th>
                 <th className="py-3 px-4 text-right">Harga / Hari</th>
@@ -170,7 +196,7 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
                 <th className="py-3 px-4 text-right">Subtotal</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium">
+            <tbody className="divide-y divide-slate-200 font-medium">
               {invoice.booking.items.map((item) => (
                 <tr key={item.id}>
                   <td className="py-3.5 px-4 font-bold text-slate-900">
@@ -194,23 +220,23 @@ export function InvoicePrintable({ invoice }: { invoice: InvoiceData }) {
             <span className="font-extrabold text-slate-900 uppercase block">
               Ketentuan Pengembalian:
             </span>
-            <p className="whitespace-pre-line leading-relaxed text-[11px] bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <p className="whitespace-pre-line leading-relaxed text-[11px] bg-slate-50 p-3 rounded-xl border border-slate-200 print:bg-white print:border-slate-300">
               {terms}
             </p>
           </div>
 
-          <div className="w-full sm:w-72 space-y-2 text-xs bg-slate-900 text-white p-5 rounded-2xl">
-            <div className="flex justify-between text-slate-300">
+          <div className="w-full sm:w-72 space-y-2 text-xs bg-slate-900 text-white p-5 rounded-2xl print:bg-slate-100 print:text-black print:border print:border-slate-300">
+            <div className="flex justify-between text-slate-300 print:text-black">
               <span>Total Biaya Sewa:</span>
-              <span className="font-bold text-white">{formatRupiah(invoice.totalAmount)}</span>
+              <span className="font-bold text-white print:text-black">{formatRupiah(invoice.totalAmount)}</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-300 print:text-black">
               <span>Uang Muka (DP) / Bayar:</span>
-              <span className="font-bold text-emerald-400">{formatRupiah(invoice.dpAmount)}</span>
+              <span className="font-bold text-emerald-400 print:text-black">{formatRupiah(invoice.dpAmount)}</span>
             </div>
-            <div className="border-t border-slate-800 pt-2 flex justify-between items-center">
-              <span className="font-bold text-amber-400">Sisa Tagihan Pelunasan:</span>
-              <span className="text-base font-extrabold text-amber-400">
+            <div className="border-t border-slate-800 print:border-slate-400 pt-2 flex justify-between items-center">
+              <span className="font-bold text-amber-400 print:text-black">Sisa Tagihan:</span>
+              <span className="text-base font-extrabold text-amber-400 print:text-black">
                 {formatRupiah(invoice.remainingAmount)}
               </span>
             </div>

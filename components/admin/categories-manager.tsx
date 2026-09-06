@@ -186,14 +186,51 @@ export function CategoriesManager({ categories: initialData }: { categories: Cat
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">URL Banner/Gambar (Opsional)</label>
-                <input
-                  type="url"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono focus:ring-2 focus:ring-emerald-600"
-                />
+                <label className="text-xs font-bold text-slate-700">Gambar / Banner Kategori</label>
+                
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setImage(reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={image}
+                      onChange={(e) => setImage(e.target.value)}
+                      placeholder="atau tempel URL gambar (https://...)"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-mono focus:ring-2 focus:ring-emerald-600"
+                    />
+                  </div>
+
+                  {image && (
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 mt-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImage("")}
+                        className="absolute top-1 right-1 bg-rose-900/80 text-white rounded-full p-0.5 text-[10px]"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex space-x-3 pt-4">

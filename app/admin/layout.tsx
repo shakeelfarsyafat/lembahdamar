@@ -46,22 +46,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F5F0] flex font-sans">
+    <div className="h-screen overflow-hidden bg-[#F7F5F0] flex font-sans print:h-auto print:overflow-visible">
       {/* Mobile backdrop */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-[#1C1C1C]/60 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 bg-[#1C1C1C]/60 backdrop-blur-xs z-40 lg:hidden print:hidden"
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1C1C1C] text-white flex flex-col justify-between transition-transform duration-300 transform border-r border-[#282828] ${
+        className={`fixed lg:sticky top-0 h-screen z-50 w-64 bg-[#1C1C1C] text-white flex flex-col justify-between transition-transform duration-300 transform border-r border-[#282828] print:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="p-6 space-y-8">
+        <div className="p-6 space-y-8 overflow-y-auto">
           {/* Brand Header */}
           <div className="flex items-center justify-between">
             <Link href="/admin" className="flex items-center space-x-3">
@@ -136,9 +136,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden print:h-auto print:overflow-visible">
         {/* Top Navbar */}
-        <header className="bg-white border-b border-[#EFECE6] px-4 sm:px-8 py-4 flex items-center justify-between">
+        <header className="bg-white border-b border-[#EFECE6] px-4 sm:px-8 py-4 flex items-center justify-between shrink-0 print:hidden">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -163,7 +163,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto print:overflow-visible print:p-0">{children}</main>
       </div>
     </div>
   );

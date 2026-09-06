@@ -307,22 +307,47 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
         </h2>
 
         {/* Image Input */}
-        <div className="flex space-x-3">
-          <input
-            type="url"
-            value={newImageUrl}
-            onChange={(e) => setNewImageUrl(e.target.value)}
-            placeholder="Tempel URL Gambar (misal Unsplash / UploadThing URL)..."
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-          />
-          <button
-            type="button"
-            onClick={handleAddImage}
-            className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-5 py-3 rounded-xl text-xs flex items-center space-x-1"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Tambah Gambar</span>
-          </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex items-center space-x-2">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                const files = e.target.files;
+                if (files) {
+                  Array.from(files).forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      if (reader.result) {
+                        setImages((prev) => [...prev, reader.result as string]);
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                  });
+                }
+              }}
+              className="text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 cursor-pointer"
+            />
+          </div>
+
+          <div className="flex-1 flex space-x-2">
+            <input
+              type="text"
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+              placeholder="atau tempel URL Gambar (https://...)..."
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+            />
+            <button
+              type="button"
+              onClick={handleAddImage}
+              className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-3 rounded-xl text-xs flex items-center space-x-1 shrink-0"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Tambah</span>
+            </button>
+          </div>
         </div>
 
         {/* Gallery Preview Grid */}
