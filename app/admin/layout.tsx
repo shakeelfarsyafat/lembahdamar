@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Package,
-  Layers,
   Users,
   Settings,
   LogOut,
@@ -33,7 +32,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Pesanan", href: "/admin/bookings", icon: ShoppingBag },
     { name: "Katalog Produk", href: "/admin/products", icon: Package },
-    { name: "Kategori", href: "/admin/categories", icon: Layers },
     { name: "Customer", href: "/admin/customers", icon: Users },
     { name: "Pengaturan", href: "/admin/settings", icon: Settings },
   ];

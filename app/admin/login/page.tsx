@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
       setTimeout(() => {
         router.push("/admin");
         router.refresh();
-      }, 900);
+      }, 150);
     } catch (err: any) {
       setErrorMsg(err.message);
     } finally {

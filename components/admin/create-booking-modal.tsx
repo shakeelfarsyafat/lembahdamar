@@ -53,6 +53,16 @@ export function CreateBookingModal({
   const [productsList, setProductsList] = useState<ProductOption[]>(initialProducts || []);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  // Extract available categories from products
+  const categoriesList = useMemo(() => {
+    const set = new Set<string>();
+    productsList.forEach((p) => {
+      if (p.category?.name) set.add(p.category.name);
+    });
+    return Array.from(set);
+  }, [productsList]);
 
   // Customer Form State
   const [customerName, setCustomerName] = useState("");
@@ -107,16 +117,19 @@ export function CreateBookingModal({
     }
   }, [isOpen, initialProducts]);
 
-  // Filter catalog products by search query
+  // Filter catalog products by search query and category
   const filteredCatalog = useMemo(() => {
-    if (!catalogSearch) return productsList;
-    const q = catalogSearch.toLowerCase();
-    return productsList.filter(
-      (p) =>
+    return productsList.filter((p) => {
+      const q = catalogSearch.toLowerCase();
+      const matchesSearch =
+        !q ||
         p.name.toLowerCase().includes(q) ||
-        (p.category && p.category.name.toLowerCase().includes(q))
-    );
-  }, [productsList, catalogSearch]);
+        (p.category && p.category.name.toLowerCase().includes(q));
+      const matchesCategory =
+        selectedCategory === "all" || p.category?.name === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [productsList, catalogSearch, selectedCategory]);
 
   const handleAddProductFromCatalog = (prod: ProductOption) => {
     const existingIdx = selectedItems.findIndex((i) => i.productId === prod.id);
@@ -351,6 +364,40 @@ export function CreateBookingModal({
               />
             </div>
 
+            {/* Category Filter Pills */}
+            {categoriesList.length > 0 && (
+              <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory("all")}
+                  className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                    selectedCategory === "all"
+                      ? "bg-emerald-800 text-white shadow-xs"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  Semua ({productsList.length})
+                </button>
+                {categoriesList.map((catName) => {
+                  const count = productsList.filter((p) => p.category?.name === catName).length;
+                  return (
+                    <button
+                      key={catName}
+                      type="button"
+                      onClick={() => setSelectedCategory(catName)}
+                      className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                        selectedCategory === catName
+                          ? "bg-emerald-800 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {catName} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Catalog Grid Cards */}
             <div className="max-h-60 overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {loadingProducts ? (
@@ -376,7 +423,14 @@ export function CreateBookingModal({
                       }`}
                     >
                       <div className="space-y-0.5 min-w-0 pr-2">
-                        <span className="font-bold text-slate-900 block truncate">{prod.name}</span>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="font-bold text-slate-900 truncate">{prod.name}</span>
+                          {prod.category?.name && (
+                            <span className="px-1.5 py-0.5 bg-slate-200 text-slate-700 text-[9px] font-extrabold rounded shrink-0">
+                              {prod.category.name}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center space-x-2 text-[10px]">
                           <span className="font-extrabold text-emerald-800">
                             {formatRupiah(prod.pricePerDay)}/hari
