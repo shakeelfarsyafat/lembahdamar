@@ -47,9 +47,14 @@ export async function deleteAdminSession() {
   cookieStore.delete(COOKIE_NAME);
 }
 
-export async function verifyAdminCredentials(email: string, password: string) {
-  const user = await db.user.findUnique({
-    where: { email },
+export async function verifyAdminCredentials(identifier: string, password: string) {
+  const user = await db.user.findFirst({
+    where: {
+      OR: [
+        { email: identifier },
+        { name: identifier },
+      ],
+    },
   });
 
   if (!user || user.role !== "ADMIN") return null;
