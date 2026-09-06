@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Trash2, Image as ImageIcon, Building, X, CheckCircle2, AlertCircle, Upload } from "lucide-react";
+import { compressImage } from "@/lib/image-compressor";
 
 interface Partner {
   id: string;
@@ -47,8 +48,16 @@ export function GalleryManager({ initialPartners, initialGalleryItems }: Gallery
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleFileUpload = async (file: File): Promise<string> => {
+    // Compress and convert to WebP before upload
+    const compressed = await compressImage(file, {
+      maxWidth: 1600,
+      maxHeight: 1600,
+      quality: 0.82,
+      mimeType: "image/webp",
+    });
+
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", compressed.file);
 
     const res = await fetch("/api/admin/upload", {
       method: "POST",

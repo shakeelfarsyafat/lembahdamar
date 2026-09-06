@@ -1,9 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Plus, Trash2, Image as ImageIcon, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Save,
+  Trash2,
+  Image as ImageIcon,
+  AlertCircle,
+  UploadCloud,
+  Loader2,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+} from "lucide-react";
+import { compressImage, formatBytes } from "@/lib/image-compressor";
 
 interface Category {
   id: string;
@@ -32,6 +45,7 @@ interface ProductFormProps {
 
 export function ProductForm({ categories, initialData }: ProductFormProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(initialData?.name || "");
   const [slug, setSlug] = useState(initialData?.slug || "");
@@ -46,13 +60,16 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
   const [isPopular, setIsPopular] = useState(initialData?.isPopular ?? false);
 
-  // Image URLs list
+  // Images list (default empty if new product, no unsplash links!)
   const [images, setImages] = useState<string[]>(
-    initialData?.images?.map((i) => i.url) || [
-      "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80",
-    ]
+    initialData?.images?.map((i) => i.url) || []
   );
-  const [newImageUrl, setNewImageUrl] = useState("");
+
+  // Uploading states
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [uploadError, setUploadError] = useState("");
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -69,20 +86,118 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
     }
   };
 
-  const handleAddImage = () => {
-    if (!newImageUrl.trim()) return;
-    setImages([...images, newImageUrl.trim()]);
-    setNewImageUrl("");
+  // Process and upload files with client-side compression
+  const processAndUploadFiles = async (fileList: FileList | File[]) => {
+    const filesArray = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
+    if (filesArray.length === 0) {
+      setUploadError("Pilih file foto/gambar yang valid (JPG, PNG, WEBP).");
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError("");
+    const newUploadedUrls: string[] = [];
+
+    try {
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        setUploadStatus(
+          `Mengompresi foto ${i + 1}/${filesArray.length}: ${file.name} (${formatBytes(file.size)})...`
+        );
+
+        // Compress and convert to WebP directly in browser
+        const compressionResult = await compressImage(file, {
+          maxWidth: 1400,
+          maxHeight: 1400,
+          quality: 0.82,
+          mimeType: "image/webp",
+        });
+
+        const compressed = compressionResult.file;
+        const savings = compressionResult.savingsPercentage;
+
+        setUploadStatus(
+          `Mengunggah foto ${i + 1}/${filesArray.length}: WebP (${formatBytes(compressed.size)}, hemat ${savings}%)...`
+        );
+
+        const formData = new FormData();
+        formData.append("file", compressed);
+
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || `Gagal mengunggah foto "${file.name}"`);
+        }
+
+        newUploadedUrls.push(data.url);
+      }
+
+      setImages((prev) => [...prev, ...newUploadedUrls]);
+      setUploadStatus("");
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      setUploadError(err.message || "Terjadi kesalahan saat memproses gambar.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processAndUploadFiles(e.target.files);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processAndUploadFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
   };
 
   const handleRemoveImage = (index: number) => {
     setImages(images.filter((_, idx) => idx !== index));
   };
 
+  const handleMakePrimary = (index: number) => {
+    if (index === 0) return;
+    const selected = images[index];
+    const remaining = images.filter((_, idx) => idx !== index);
+    setImages([selected, ...remaining]);
+  };
+
+  const handleMoveImage = (index: number, direction: -1 | 1) => {
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= images.length) return;
+    const updated = [...images];
+    const temp = updated[index];
+    updated[index] = updated[targetIdx];
+    updated[targetIdx] = temp;
+    setImages(updated);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length === 0) {
-      setErrorMsg("Minimal tambahkan 1 gambar produk.");
+      setErrorMsg("Wajib mengunggah minimal 1 foto produk.");
       return;
     }
 
@@ -132,15 +247,15 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
       <div className="flex items-center justify-between">
         <Link
           href="/admin/products"
-          className="inline-flex items-center space-x-2 text-xs font-bold text-slate-500 hover:text-slate-900"
+          className="inline-flex items-center space-x-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Kembali ke Daftar Produk</span>
         </Link>
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="inline-flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-6 py-3 rounded-xl shadow-md transition-all text-xs"
+          disabled={isSubmitting || isUploading}
+          className="inline-flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-6 py-3 rounded-xl shadow-md transition-all text-xs disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="h-4 w-4" />
           <span>{isSubmitting ? "Menyimpan..." : "Simpan Produk"}</span>
@@ -148,7 +263,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
       </div>
 
       {errorMsg && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl flex items-center space-x-3 text-xs font-semibold">
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl flex items-center space-x-3 text-xs font-semibold animate-in fade-in duration-200">
           <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
           <span>{errorMsg}</span>
         </div>
@@ -170,7 +285,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="Contoh: Tenda Dome 4 Person Eiger"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-colors"
             />
           </div>
 
@@ -183,7 +298,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               placeholder="tenda-dome-4-person-eiger"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-700 focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-700 focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-colors"
             />
           </div>
 
@@ -193,7 +308,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-colors"
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -212,7 +327,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
               min={0}
               value={pricePerDay}
               onChange={(e) => setPricePerDay(Number(e.target.value))}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-emerald-800 focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-emerald-800 focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-colors"
             />
           </div>
 
@@ -225,7 +340,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
               min={0}
               value={stock}
               onChange={(e) => setStock(Number(e.target.value))}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-colors"
             />
           </div>
 
@@ -238,7 +353,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Deskripsi keunggulan dan spesifikasi singkat produk..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-medium focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-colors"
             />
           </div>
         </div>
@@ -297,96 +412,170 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
         </div>
       </div>
 
-      {/* Image Manager */}
+      {/* Image Manager (Direct Upload with Auto Compress & WebP Convert) */}
       <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xs space-y-6">
-        <h2 className="font-extrabold text-slate-900 text-lg border-b border-slate-100 pb-3 flex items-center justify-between">
-          <span>Manajemen Gambar Produk</span>
-          <span className="text-xs text-slate-400 font-normal">
-            Gambar pertama akan menjadi foto utama
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-1">
+          <div>
+            <h2 className="font-extrabold text-slate-900 text-lg">
+              Foto Produk ({images.length})
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Otomatis dikonversi ke format WebP & dikompresi agar ukuran file sangat ringan dan cepat dimuat.
+            </p>
+          </div>
+          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full self-start sm:self-auto">
+            Foto pertama = Foto Utama
           </span>
-        </h2>
+        </div>
 
-        {/* Image Input */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex items-center space-x-2">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={async (e) => {
-                const files = e.target.files;
-                if (!files || files.length === 0) return;
-                setIsSubmitting(true);
-                try {
-                  for (let i = 0; i < files.length; i++) {
-                    const formData = new FormData();
-                    formData.append("file", files[i]);
-                    const res = await fetch("/api/admin/upload", {
-                      method: "POST",
-                      body: formData,
-                    });
-                    const data = await res.json();
-                    if (res.ok && data.url) {
-                      setImages((prev) => [...prev, data.url]);
-                    }
-                  }
-                } catch (err) {
-                  console.error("Gagal unggah gambar produk:", err);
-                } finally {
-                  setIsSubmitting(false);
-                }
-              }}
-              className="text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 cursor-pointer"
-            />
+        {uploadError && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-xl flex items-center space-x-2 text-xs font-semibold animate-in fade-in duration-150">
+            <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+            <span>{uploadError}</span>
           </div>
+        )}
 
-          <div className="flex-1 flex space-x-2">
-            <input
-              type="text"
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="atau tempel URL Gambar (https://...)..."
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-            />
-            <button
-              type="button"
-              onClick={handleAddImage}
-              className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-3 rounded-xl text-xs flex items-center space-x-1 shrink-0"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Tambah</span>
-            </button>
-          </div>
+        {/* Drag & Drop Upload Zone */}
+        <div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileInputChange}
+            disabled={isUploading}
+            className="hidden"
+            id="product-photo-upload"
+          />
+
+          <label
+            htmlFor="product-photo-upload"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className={`relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${
+              isDragOver
+                ? "border-emerald-600 bg-emerald-50/70 scale-[1.01]"
+                : "border-slate-300 bg-slate-50/60 hover:bg-slate-100/80 hover:border-emerald-500"
+            } ${isUploading ? "opacity-60 pointer-events-none" : ""}`}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-3 shadow-inner">
+              {isUploading ? (
+                <Loader2 className="h-7 w-7 animate-spin text-emerald-800" />
+              ) : (
+                <UploadCloud className="h-7 w-7" />
+              )}
+            </div>
+
+            <div className="text-center space-y-1">
+              <p className="text-sm font-bold text-slate-800">
+                {isUploading
+                  ? "Sedang memproses & mengompresi gambar..."
+                  : "Klik untuk pilih foto produk atau seret foto ke sini"}
+              </p>
+              <p className="text-xs text-slate-500">
+                Bisa pilih banyak foto sekaligus (JPG, PNG, WEBP). Foto langsung otomatis diperkecil & dioptimasi WebP.
+              </p>
+            </div>
+
+            {/* Upload status message */}
+            {isUploading && (
+              <div className="mt-4 inline-flex items-center space-x-2 bg-emerald-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>{uploadStatus}</span>
+              </div>
+            )}
+          </label>
         </div>
 
         {/* Gallery Preview Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {images.map((url, idx) => (
-            <div
-              key={idx}
-              className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 h-32"
-            >
-              <img src={url} alt="Product image" className="w-full h-full object-cover" />
-              {idx === 0 && (
-                <div className="absolute top-2 left-2 bg-emerald-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                  Utama
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(idx)}
-                className="absolute top-2 right-2 bg-rose-600 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+        {images.length > 0 ? (
+          <div className="space-y-2">
+            <div className="text-xs font-bold text-slate-600">Daftar Foto Terunggah:</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {images.map((url, idx) => {
+                const isPrimary = idx === 0;
+                return (
+                  <div
+                    key={`${url}-${idx}`}
+                    className={`group relative rounded-2xl overflow-hidden border-2 bg-slate-100 transition-all ${
+                      isPrimary
+                        ? "border-emerald-600 shadow-md ring-2 ring-emerald-500/20"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="aspect-square w-full overflow-hidden bg-slate-100">
+                      <img
+                        src={url}
+                        alt={`Foto produk ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+
+                    {/* Primary Badge */}
+                    {isPrimary ? (
+                      <div className="absolute top-2 left-2 bg-emerald-800 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow">
+                        <Star className="h-3 w-3 fill-current" />
+                        <span>Foto Utama</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleMakePrimary(idx)}
+                        className="absolute top-2 left-2 bg-black/70 hover:bg-emerald-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow"
+                        title="Jadikan foto utama"
+                      >
+                        Set Utama
+                      </button>
+                    )}
+
+                    {/* Reorder and Delete Controls */}
+                    <div className="absolute bottom-2 inset-x-2 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-xs p-1 rounded-xl">
+                      <div className="flex items-center space-x-0.5">
+                        <button
+                          type="button"
+                          onClick={() => handleMoveImage(idx, -1)}
+                          disabled={idx === 0}
+                          className="text-white hover:text-emerald-400 p-1 rounded-md disabled:opacity-30"
+                          title="Pindahkan ke kiri"
+                        >
+                          <ChevronLeft className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveImage(idx, 1)}
+                          disabled={idx === images.length - 1}
+                          className="text-white hover:text-emerald-400 p-1 rounded-md disabled:opacity-30"
+                          title="Pindahkan ke kanan"
+                        >
+                          <ChevronRight className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        className="bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-lg transition-colors"
+                        title="Hapus foto ini"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="text-center py-6 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 text-slate-400 text-xs">
+            Belum ada foto yang diunggah. Unggah minimal 1 foto produk menggunakan area di atas.
+          </div>
+        )}
       </div>
 
       {/* Checkboxes Status */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col sm:flex-row gap-6">
-        <label className="flex items-center space-x-3 cursor-pointer">
+        <label className="flex items-center space-x-3 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={isActive}
@@ -398,7 +587,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
           </span>
         </label>
 
-        <label className="flex items-center space-x-3 cursor-pointer">
+        <label className="flex items-center space-x-3 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={isPopular}
