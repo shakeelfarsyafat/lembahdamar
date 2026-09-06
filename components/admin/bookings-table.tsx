@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatRupiah } from "@/lib/whatsapp";
-import { Search, Filter, Eye, Calendar, User, Phone, CheckCircle2 } from "lucide-react";
+import { Search, Filter, Eye, Calendar, User, Phone, CheckCircle2, Plus } from "lucide-react";
+import { CreateBookingModal } from "@/components/admin/create-booking-modal";
 
 interface Customer {
   name: string;
@@ -27,6 +28,7 @@ export function BookingsTable({ bookings: initialData }: { bookings: Booking[] }
   const [bookings, setBookings] = useState(initialData);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const filteredBookings = bookings.filter((b) => {
     const matchesSearch =
@@ -59,6 +61,12 @@ export function BookingsTable({ bookings: initialData }: { bookings: Booking[] }
 
   return (
     <div className="space-y-6">
+      {/* Modal */}
+      <CreateBookingModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
+
       {/* Toolbar */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
@@ -91,8 +99,18 @@ export function BookingsTable({ bookings: initialData }: { bookings: Booking[] }
           </select>
         </div>
 
-        <div className="text-xs font-semibold text-slate-500">
-          Total <span className="font-extrabold text-slate-900">{filteredBookings.length}</span> Pesanan
+        <div className="flex items-center space-x-4 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="text-xs font-semibold text-slate-500">
+            Total <span className="font-extrabold text-slate-900">{filteredBookings.length}</span> Pesanan
+          </div>
+
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-4 py-2.5 rounded-xl shadow-xs transition-all text-xs cursor-pointer shrink-0"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Tambah Pesanan Baru</span>
+          </button>
         </div>
       </div>
 

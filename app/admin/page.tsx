@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db/prisma";
 import { formatRupiah } from "@/lib/whatsapp";
+import { DashboardHeaderActions } from "@/components/admin/dashboard-header-actions";
 import {
   Package,
   ShoppingBag,
@@ -121,20 +122,7 @@ export default async function AdminDashboardPage() {
             Ringkasan performa penyewaan alat outdoor Lembah Damar secara realtime.
           </p>
         </div>
-        <div className="flex space-x-3">
-          <Link
-            href="/admin/products/new"
-            className="inline-flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all"
-          >
-            <span>+ Tambah Produk</span>
-          </Link>
-          <Link
-            href="/admin/bookings"
-            className="inline-flex items-center space-x-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all"
-          >
-            <span>Kelola Booking</span>
-          </Link>
-        </div>
+        <DashboardHeaderActions />
       </div>
 
       {/* Metrics Cards Grid */}
