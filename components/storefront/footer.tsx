@@ -3,129 +3,116 @@ import { Mountain, Phone, Mail, MapPin, Clock } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-[#1C1C1C] text-[#F7F5F0] border-t border-[#282828] mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Brand Col */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2.5">
-              <div className="bg-[#D96C3F] text-white p-2 rounded-xl">
-                <Mountain className="h-6 w-6" />
+    <footer className="bg-[#183327] text-white border-t border-[#234737] mt-auto text-xs font-sans">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Col 1: Brand Info */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <div className="bg-[#FF5524] text-white p-1.5 rounded-lg">
+                <Mountain className="h-4 w-4" />
               </div>
-              <span className="text-xl font-extrabold text-white tracking-tight">
+              <span className="text-base font-black text-white uppercase tracking-tight">
                 LEMBAH DAMAR
               </span>
             </div>
-            <p className="text-[#F7F5F0]/70 text-sm leading-relaxed">
+            <p className="text-stone-300 text-[11px] leading-relaxed">
               Penyewaan perlengkapan camping dan outdoor terlengkap di Bogor. Siap menemani setiap petualangan gunung dan alam bebasmu dengan alat berkualitas.
             </p>
-            <div className="flex items-center space-x-3 pt-2">
-              <a
-                href="https://instagram.com/lembahdamar_outdoor"
-                target="_blank"
-                rel="noreferrer"
-                className="bg-[#282828] hover:bg-[#383838] text-[#D96C3F] p-2.5 rounded-xl transition-colors flex items-center justify-center border border-[#383838]"
-                aria-label="Instagram"
-              >
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
-              </a>
-              <a
-                href="https://wa.me/6281563105682"
-                target="_blank"
-                rel="noreferrer"
-                className="bg-[#282828] hover:bg-[#383838] text-[#D96C3F] p-2.5 rounded-xl transition-colors border border-[#383838]"
-                aria-label="WhatsApp"
-              >
-                <Phone className="h-5 w-5" />
-              </a>
-            </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-white font-bold text-base tracking-wide mb-4">Navigasi</h3>
-            <ul className="space-y-2.5 text-sm text-[#F7F5F0]/70">
+          {/* Col 2: Quick Links */}
+          <div className="space-y-3">
+            <h3 className="text-white font-extrabold text-sm tracking-wide">Navigasi</h3>
+            <ul className="space-y-1.5 text-stone-300 text-[11px] font-medium">
               <li>
-                <Link href="/" className="hover:text-[#D96C3F] transition-colors">
+                <Link href="/" className="hover:text-white transition-colors">
                   Beranda
                 </Link>
               </li>
               <li>
-                <Link href="/katalog" className="hover:text-[#D96C3F] transition-colors">
+                <Link href="/katalog" className="hover:text-white transition-colors">
                   Katalog Peralatan
                 </Link>
               </li>
               <li>
-                <Link href="/kontak" className="hover:text-[#D96C3F] transition-colors">
-                  Kontak, Cara Sewa & FAQ
+                <Link href="/kontak" className="hover:text-white transition-colors">
+                  Kontak & FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/cara-sewa" className="hover:text-white transition-colors">
+                  Cara Penyewaan
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Categories */}
-          <div>
-            <h3 className="text-white font-bold text-base tracking-wide mb-4">Kategori Alat</h3>
-            <ul className="space-y-2.5 text-sm text-[#F7F5F0]/70">
+          {/* Col 3: Kategori Alat */}
+          <div className="space-y-3">
+            <h3 className="text-white font-extrabold text-sm tracking-wide">Kategori Alat</h3>
+            <ul className="space-y-1.5 text-stone-300 text-[11px] font-medium">
               <li>
-                <Link href="/katalog?category=tenda" className="hover:text-[#D96C3F] transition-colors">
+                <Link href="/katalog?category=tenda" className="hover:text-white transition-colors">
                   Tenda Dome & Family
                 </Link>
               </li>
               <li>
-                <Link href="/katalog?category=carrier" className="hover:text-[#D96C3F] transition-colors">
-                  Carrier & Ransel Gunung
+                <Link href="/katalog?category=carrier" className="hover:text-white transition-colors">
+                  Carrier & Ransel
                 </Link>
               </li>
               <li>
-                <Link href="/katalog?category=sleeping-bag" className="hover:text-[#D96C3F] transition-colors">
+                <Link href="/katalog?category=sleeping-bag" className="hover:text-white transition-colors">
                   Sleeping Bag & Matras
                 </Link>
               </li>
               <li>
-                <Link href="/katalog?category=kompor" className="hover:text-[#D96C3F] transition-colors">
+                <Link href="/katalog?category=kompor" className="hover:text-white transition-colors">
                   Kompor & Cooking Set
-                </Link>
-              </li>
-              <li>
-                <Link href="/katalog?category=kursi-meja" className="hover:text-[#D96C3F] transition-colors">
-                  Kursi & Meja Portable
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div className="space-y-3.5 text-sm text-[#F7F5F0]/70">
-            <h3 className="text-white font-bold text-base tracking-wide mb-4">Kontak & Lokasi</h3>
-            <div className="flex items-start space-x-3">
-              <MapPin className="h-5 w-5 text-[#D96C3F] shrink-0 mt-0.5" />
-              <span>Jl. Raya Puncak KM 77, Cisarua, Bogor, Jawa Barat</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="h-5 w-5 text-[#D96C3F] shrink-0" />
-              <span>+62 815-6310-5682</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-[#D96C3F] shrink-0" />
-              <span>info@lembahdamaroutdoor.com</span>
-            </div>
-            <div className="flex items-center space-x-3 pt-1">
-              <Clock className="h-5 w-5 text-[#D96C3F] shrink-0" />
-              <span>Buka: 07.00 - 21.00 WIB</span>
-            </div>
+          {/* Col 4: Contact Info */}
+          <div className="space-y-3">
+            <h3 className="text-white font-extrabold text-sm tracking-wide">Kontak & Lokasi</h3>
+            <ul className="space-y-2 text-stone-300 text-[11px] font-medium">
+              <li className="flex items-start space-x-2">
+                <MapPin className="h-3.5 w-3.5 text-[#FF5524] shrink-0 mt-0.5" />
+                <a
+                  href="https://share.google/C7mmyRQMOk1CrN6MX"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white transition-colors underline decoration-[#FF5524]/50"
+                  title="Lihat di Google Maps"
+                >
+                  Jl. Raya Puncak KM 77, Cisarua, Bogor
+                </a>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Phone className="h-3.5 w-3.5 text-[#FF5524] shrink-0" />
+                <span>+62 815-6310-5682</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Mail className="h-3.5 w-3.5 text-[#FF5524] shrink-0" />
+                <span>info@lembahdamaroutdoor.com</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Clock className="h-3.5 w-3.5 text-[#FF5524] shrink-0" />
+                <span>07.00 - 21.00 WIB</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="border-t border-[#282828] mt-12 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-[#F7F5F0]/50 space-y-4 md:space-y-0">
-          <p>© {new Date().getFullYear()} Lembah Damar Outdoor. All rights reserved.</p>
-          <div className="flex space-x-6">
-            <Link href="/admin/login" className="hover:text-[#D96C3F] transition-colors">
-              Admin Portal
-            </Link>
-          </div>
+        {/* Bottom bar */}
+        <div className="border-t border-[#234737] mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between text-[10px] text-stone-400 font-medium">
+          <span>© {new Date().getFullYear()} Lembah Damar Outdoor. All rights reserved.</span>
+          <Link href="/admin/login" className="hover:text-white transition-colors">
+            Admin Portal
+          </Link>
         </div>
       </div>
     </footer>

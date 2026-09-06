@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
 import { CatalogView } from "@/components/storefront/catalog-view";
+import { FloatingCartBar } from "@/components/storefront/floating-cart-bar";
 import { db } from "@/lib/db/prisma";
 
 export const revalidate = 60;
@@ -39,6 +40,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           initialCategory={initialCategory}
         />
       </main>
+      <FloatingCartBar />
       <Footer />
     </div>
   );

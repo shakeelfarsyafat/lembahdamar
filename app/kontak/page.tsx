@@ -130,7 +130,7 @@ export default async function KontakPage() {
               {/* Direct WA Action Card */}
               <div className="bg-[#1C1C1C] text-white p-8 rounded-3xl flex flex-col justify-between space-y-6 border border-[#282828]">
                 <div className="space-y-3">
-                  <span className="text-xs font-bold text-[#D96C3F] uppercase tracking-widest">
+                  <span className="text-xs font-bold text-[#FF5524] uppercase tracking-widest">
                     Respon Cepat
                   </span>
                   <h2 className="text-2xl font-extrabold text-white">Tanya CS via WhatsApp</h2>
@@ -144,12 +144,51 @@ export default async function KontakPage() {
                     href={`https://wa.me/${waNumber}?text=Halo%20Lembah%20Damar%20Outdoor,%20saya%20ingin%20tanya%20sewa%20alat.`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full inline-flex items-center justify-center space-x-3 bg-[#D96C3F] hover:bg-[#C05A2E] text-white py-4 rounded-2xl font-extrabold text-sm shadow-xl transition-all"
+                    className="w-full inline-flex items-center justify-center space-x-3 bg-[#FF5524] hover:bg-[#E04618] text-white py-4 rounded-2xl font-extrabold text-sm shadow-xl transition-all"
                   >
                     <Phone className="h-5 w-5 fill-white" />
                     <span>Kirim Pesan WhatsApp</span>
                   </a>
                 </div>
+              </div>
+            </div>
+
+            {/* Google Maps Location Embed Section */}
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EFECE6] shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EFECE6] pb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 bg-[#FF5524]/10 text-[#FF5524] rounded-2xl">
+                    <MapPin className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-[#1C1C1C] text-xl">Lokasi Basecamp Lembah Damar</h2>
+                    <p className="text-xs text-stone-500">{address}</p>
+                  </div>
+                </div>
+                <a
+                  href="https://share.google/C7mmyRQMOk1CrN6MX"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center space-x-2 bg-[#FF5524] hover:bg-[#E04618] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all shrink-0"
+                >
+                  <MapPin className="h-4 w-4" />
+                  <span>Buka di Google Maps ↗</span>
+                </a>
+              </div>
+
+              {/* Interactive Map Embed */}
+              <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-stone-200 shadow-inner relative bg-stone-100">
+                <iframe
+                  title="Lokasi Lembah Damar Outdoor Basecamp"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.284382583852!2d106.9366!3d-6.6116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMzYnNDEuOCJTIDEwNsKwNTYnMTEuOCJF!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full"
+                />
               </div>
             </div>
           </div>

@@ -313,18 +313,27 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
               type="file"
               accept="image/*"
               multiple
-              onChange={(e) => {
+              onChange={async (e) => {
                 const files = e.target.files;
-                if (files) {
-                  Array.from(files).forEach((file) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      if (reader.result) {
-                        setImages((prev) => [...prev, reader.result as string]);
-                      }
-                    };
-                    reader.readAsDataURL(file);
-                  });
+                if (!files || files.length === 0) return;
+                setIsSubmitting(true);
+                try {
+                  for (let i = 0; i < files.length; i++) {
+                    const formData = new FormData();
+                    formData.append("file", files[i]);
+                    const res = await fetch("/api/admin/upload", {
+                      method: "POST",
+                      body: formData,
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.url) {
+                      setImages((prev) => [...prev, data.url]);
+                    }
+                  }
+                } catch (err) {
+                  console.error("Gagal unggah gambar produk:", err);
+                } finally {
+                  setIsSubmitting(false);
                 }
               }}
               className="text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 cursor-pointer"

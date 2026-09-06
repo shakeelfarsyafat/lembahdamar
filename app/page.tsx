@@ -1,22 +1,21 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
+import { HomeProductCard } from "@/components/storefront/home-product-card";
+import { FloatingCartBar } from "@/components/storefront/floating-cart-bar";
 import { db } from "@/lib/db/prisma";
 import { formatRupiah } from "@/lib/whatsapp";
 import {
   ShieldCheck,
   Sparkles,
   Truck,
-  CheckCircle2,
-  ArrowRight,
   Tent,
-  Backpack,
   Bed,
   Flame,
+  Utensils,
+  Backpack,
   Layers,
   Lightbulb,
-  Utensils,
   Armchair,
   Compass,
   Phone,
@@ -45,23 +44,23 @@ export default async function HomePage() {
   const getCategoryIcon = (iconName: string | null) => {
     switch (iconName) {
       case "Tent":
-        return <Tent className="h-6 w-6" />;
+        return <Tent className="h-10 w-10 stroke-[1.5]" />;
       case "Backpack":
-        return <Backpack className="h-6 w-6" />;
+        return <Backpack className="h-10 w-10 stroke-[1.5]" />;
       case "Bed":
-        return <Bed className="h-6 w-6" />;
+        return <Bed className="h-10 w-10 stroke-[1.5]" />;
       case "Flame":
-        return <Flame className="h-6 w-6" />;
+        return <Flame className="h-10 w-10 stroke-[1.5]" />;
       case "Layers":
-        return <Layers className="h-6 w-6" />;
+        return <Layers className="h-10 w-10 stroke-[1.5]" />;
       case "Lightbulb":
-        return <Lightbulb className="h-6 w-6" />;
+        return <Lightbulb className="h-10 w-10 stroke-[1.5]" />;
       case "Utensils":
-        return <Utensils className="h-6 w-6" />;
+        return <Utensils className="h-10 w-10 stroke-[1.5]" />;
       case "Armchair":
-        return <Armchair className="h-6 w-6" />;
+        return <Armchair className="h-10 w-10 stroke-[1.5]" />;
       default:
-        return <Compass className="h-6 w-6" />;
+        return <Compass className="h-10 w-10 stroke-[1.5]" />;
     }
   };
 
@@ -110,327 +109,197 @@ export default async function HomePage() {
   const waNumber = settings?.waNumber || "6281563105682";
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F7F5F0]">
+    <div className="flex flex-col min-h-screen bg-[#F7F5F0] font-sans">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-[#1C1C1C] text-white pt-12 pb-24 lg:pt-20 lg:pb-32 overflow-hidden border-b border-[#282828]">
-        {/* Ambient Overlay Graphic */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#D96C3F]/20 via-[#1C1C1C] to-[#1C1C1C] pointer-events-none" />
-        <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 blur-3xl opacity-20 w-96 h-96 bg-[#D96C3F] rounded-full" />
+      {/* Hero Banner Section */}
+      <section className="relative w-full h-[450px] sm:h-[520px] lg:h-[580px] bg-stone-900 overflow-hidden flex items-center">
+        {/* Background Image */}
+        <img
+          src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1600&q=80"
+          alt="Outdoor Camping Background"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center space-x-2 bg-[#282828] border border-[#383838] px-4 py-1.5 rounded-full text-xs font-semibold text-[#D96C3F]">
-                <Sparkles className="h-4 w-4 text-[#D96C3F]" />
-                <span>Penyewaan Alat Outdoor Terpercaya di Puncak Bogor</span>
-              </div>
+        {/* Dark Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-transparent" />
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
-                Lengkapi Petualanganmu dengan <span className="text-[#D96C3F]">Peralatan Camping</span> Terbaik.
-              </h1>
+        {/* Hero Content */}
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 w-full z-10">
+          <div className="max-w-2xl space-y-4 text-left">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight leading-[1.15]">
+              SEWA ALAT CAMPING TERLENGKAP DI LEMBAH DAMAR!
+            </h1>
 
-              <p className="text-lg sm:text-xl text-[#F7F5F0]/80 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Sewa tenda, carrier, sleeping bag, kompor, dan berbagai perlengkapan outdoor berkualitas tinggi dengan proses mudah, cepat, dan transparan.
-              </p>
+            <p className="text-sm sm:text-base text-stone-200 font-medium leading-relaxed max-w-xl">
+              Mudah, Aman, dan Siap Berpetualang! Jelajahi alam Puncak & Bogor dengan peralatan kualitas terbaik kami.
+            </p>
 
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                <Link
-                  href="/katalog"
-                  className="w-full sm:w-auto inline-flex items-center justify-center space-x-3 bg-[#D96C3F] hover:bg-[#C05A2E] text-white px-8 py-4 rounded-xl font-bold text-base shadow-xl transition-all transform hover:-translate-y-0.5"
-                >
-                  <span>Lihat Katalog Produk</span>
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-                <Link
-                  href="/kontak"
-                  className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-[#282828] hover:bg-[#383838] text-[#F7F5F0] border border-[#383838] px-6 py-4 rounded-xl font-semibold text-base transition-colors"
-                >
-                  <span>Cara Penyewaan & FAQ</span>
-                </Link>
-              </div>
-
-              {/* Trust Badges */}
-              <div className="pt-6 border-t border-[#282828] grid grid-cols-3 gap-4 text-center lg:text-left">
-                <div>
-                  <span className="block text-2xl font-extrabold text-white">100%</span>
-                  <span className="text-xs text-[#F7F5F0]/70">Alat Terawat & Bersih</span>
-                </div>
-                <div>
-                  <span className="block text-2xl font-extrabold text-white">50+</span>
-                  <span className="text-xs text-[#F7F5F0]/70">Pilihan Peralatan</span>
-                </div>
-                <div>
-                  <span className="block text-2xl font-extrabold text-white">Fast</span>
-                  <span className="text-xs text-[#F7F5F0]/70">Respon WhatsApp</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Visual Image */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-[#383838] bg-[#282828]">
-                <img
-                  src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1000&q=80"
-                  alt="Outdoor Camping Experience"
-                  className="w-full h-[400px] lg:h-[480px] object-cover hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1C]/90 via-transparent to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6 p-4 bg-[#1C1C1C]/90 backdrop-blur-md rounded-2xl border border-[#383838]">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2.5 bg-[#D96C3F] rounded-xl text-white">
-                      <Tent className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-semibold text-[#D96C3F] uppercase tracking-wider block">
-                        Koleksi Tenda Premium
-                      </span>
-                      <span className="text-sm font-bold text-white">
-                        Frame Aluminium Tahan Angin Gunung
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="pt-3">
+              <Link
+                href="/katalog"
+                className="inline-block bg-[#FF5524] hover:bg-[#E04618] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider px-8 py-3.5 rounded-full shadow-2xl transition-all transform hover:scale-105 cursor-pointer"
+              >
+                CEK KETERSEDIAAN
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Category Section */}
-      <section className="py-16 bg-[#F7F5F0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-xs font-extrabold tracking-widest text-[#D96C3F] uppercase mb-2">
-              Kategori Alat
-            </h2>
-            <h3 className="text-3xl font-extrabold text-[#1C1C1C] tracking-tight">
-              Pilihan Peralatan Outdoor Lengkap
-            </h3>
-            <p className="mt-3 text-stone-600 text-sm">
-              Temukan semua kebutuhan mendaki dan camping dalam satu tempat.
-            </p>
-          </div>
+      {/* Main Content Container */}
+      <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12 space-y-16 w-full flex-1">
+        {/* KATEGORI ALAT Section */}
+        <section className="space-y-6">
+          <h2 className="text-lg font-black text-stone-900 tracking-wider uppercase">
+            KATEGORI ALAT
+          </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {categories.map((cat) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {categories.slice(0, 6).map((cat, idx) => (
               <Link
                 key={cat.id}
                 href={`/katalog?category=${cat.slug}`}
-                className="group bg-white p-6 rounded-2xl border border-[#EFECE6] shadow-xs hover:shadow-md hover:border-[#D96C3F]/50 transition-all duration-300 text-center flex flex-col items-center justify-center space-y-3"
+                className="bg-[#EBE7E1] p-6 rounded-2xl hover:shadow-lg transition-all duration-300 relative flex flex-col justify-between h-48 border border-stone-300/60 group"
               >
-                <div className="p-4 bg-[#FDF3EE] group-hover:bg-[#D96C3F] text-[#D96C3F] group-hover:text-white rounded-2xl transition-all duration-300">
-                  {getCategoryIcon(cat.icon)}
+                <span className="text-stone-500 font-bold text-sm absolute top-4 left-4">
+                  {idx + 1}.
+                </span>
+                <div className="w-full flex justify-center py-2">
+                  <div className="w-20 h-16 relative flex items-center justify-center text-stone-700 group-hover:scale-110 transition-transform">
+                    {getCategoryIcon(cat.icon)}
+                  </div>
                 </div>
-                <h4 className="font-bold text-[#1C1C1C] group-hover:text-[#D96C3F] transition-colors text-sm sm:text-base">
-                  {cat.name}
-                </h4>
+                <div>
+                  <h3 className="font-extrabold text-stone-900 text-sm tracking-wide uppercase">
+                    {cat.name}
+                  </h3>
+                  <p className="text-xs text-stone-600 mt-0.5">
+                    Pilihan alat outdoor {cat.name.toLowerCase()} berkualitas
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Popular Products */}
-      <section className="py-20 bg-white border-y border-[#EFECE6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
-            <div>
-              <span className="text-xs font-extrabold tracking-widest text-[#D96C3F] uppercase block mb-1">
-                Rekomendasi Favorit
-              </span>
-              <h2 className="text-3xl font-extrabold text-[#1C1C1C] tracking-tight">
-                Produk Paling Sering Disewa
-              </h2>
-            </div>
-            <Link
-              href="/katalog"
-              className="mt-4 md:mt-0 inline-flex items-center space-x-2 text-sm font-bold text-[#D96C3F] hover:text-[#C05A2E] transition-colors"
-            >
-              <span>Lihat Semua Katalog</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+        {/* PRODUK POPULER Section */}
+        <section className="space-y-6">
+          <h2 className="text-lg font-black text-stone-900 tracking-wider uppercase">
+            PRODUK POPULER
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {popularProducts.map((product) => (
+              <HomeProductCard key={product.id} product={product} />
+            ))}
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {popularProducts.map((product) => {
-              const primaryImg = product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url || "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80";
-
-              return (
-                <div
-                  key={product.id}
-                  className="group bg-[#F7F5F0] rounded-2xl border border-[#EFECE6] overflow-hidden shadow-xs hover:shadow-xl hover:border-[#D96C3F]/40 transition-all duration-300 flex flex-col"
-                >
-                  {/* Image Header */}
-                  <div className="relative h-56 w-full overflow-hidden bg-[#EFECE6]">
-                    <img
-                      src={primaryImg}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 left-3 bg-[#1C1C1C]/90 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-xs">
-                      {product.category.name}
-                    </div>
-                    {product.stock > 0 ? (
-                      <div className="absolute top-3 right-3 bg-[#FDF3EE] text-[#D96C3F] text-[11px] font-bold px-2.5 py-1 rounded-md border border-[#D96C3F]/30">
-                        Stok: {product.stock}
-                      </div>
-                    ) : (
-                      <div className="absolute top-3 right-3 bg-rose-50 text-rose-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-rose-200">
-                        Stok Habis
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Body */}
-                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      <h3 className="font-bold text-[#1C1C1C] text-lg group-hover:text-[#D96C3F] transition-colors line-clamp-1">
-                        {product.name}
-                      </h3>
-                      <p className="text-xs text-stone-600 mt-1 line-clamp-2 leading-relaxed">
-                        {product.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-4 border-t border-[#EFECE6] flex items-center justify-between">
-                      <div>
-                        <span className="text-[11px] font-semibold text-stone-500 block">Sewa Per Hari</span>
-                        <span className="text-xl font-extrabold text-[#D96C3F]">
-                          {formatRupiah(product.pricePerDay)}
-                        </span>
-                      </div>
-
-                      <Link
-                        href={`/produk/${product.slug}`}
-                        className="bg-[#1C1C1C] hover:bg-[#D96C3F] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs"
-                      >
-                        Lihat Detail
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us */}
-      <section className="py-16 bg-[#1C1C1C] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-xs font-extrabold tracking-widest text-[#D96C3F] uppercase mb-2">
+        {/* Keunggulan Kami */}
+        <section className="py-12 bg-[#183327] text-white rounded-3xl p-8 sm:p-12 space-y-8 shadow-xl">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <h2 className="text-xs font-black tracking-widest text-[#FF5524] uppercase">
               Keunggulan Kami
             </h2>
-            <h3 className="text-3xl font-extrabold text-white tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               Mengapa Menyewa di Lembah Damar?
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#282828] border border-[#383838] p-8 rounded-2xl text-center space-y-4">
-              <div className="w-14 h-14 bg-[#D96C3F]/20 text-[#D96C3F] rounded-2xl flex items-center justify-center mx-auto border border-[#D96C3F]/30">
-                <ShieldCheck className="h-7 w-7" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-[#162E24] border border-[#234737] p-6 rounded-2xl text-center space-y-3">
+              <div className="w-12 h-12 bg-[#FF5524]/20 text-[#FF5524] rounded-xl flex items-center justify-center mx-auto border border-[#FF5524]/30">
+                <ShieldCheck className="h-6 w-6" />
               </div>
-              <h4 className="font-bold text-xl text-white">Peralatan Steril & Terawat</h4>
-              <p className="text-sm text-[#F7F5F0]/70 leading-relaxed">
+              <h4 className="font-extrabold text-lg text-white">Peralatan Steril & Terawat</h4>
+              <p className="text-xs text-stone-300 leading-relaxed">
                 Tenda dan sleeping bag selalu dicuci bersih dan dikeringkan higienis setelah tiap penggunaan.
               </p>
             </div>
 
-            <div className="bg-[#282828] border border-[#383838] p-8 rounded-2xl text-center space-y-4">
-              <div className="w-14 h-14 bg-[#D96C3F]/20 text-[#D96C3F] rounded-2xl flex items-center justify-center mx-auto border border-[#D96C3F]/30">
-                <Sparkles className="h-7 w-7" />
+            <div className="bg-[#162E24] border border-[#234737] p-6 rounded-2xl text-center space-y-3">
+              <div className="w-12 h-12 bg-[#FF5524]/20 text-[#FF5524] rounded-xl flex items-center justify-center mx-auto border border-[#FF5524]/30">
+                <Sparkles className="h-6 w-6" />
               </div>
-              <h4 className="font-bold text-xl text-white">Harga Sewa Bersahabat</h4>
-              <p className="text-sm text-[#F7F5F0]/70 leading-relaxed">
+              <h4 className="font-extrabold text-lg text-white">Harga Sewa Bersahabat</h4>
+              <p className="text-xs text-stone-300 leading-relaxed">
                 Tarif sewa terjangkau per hari dengan hitungan transparan tanpa biaya tersembunyi.
               </p>
             </div>
 
-            <div className="bg-[#282828] border border-[#383838] p-8 rounded-2xl text-center space-y-4">
-              <div className="w-14 h-14 bg-[#D96C3F]/20 text-[#D96C3F] rounded-2xl flex items-center justify-center mx-auto border border-[#D96C3F]/30">
-                <Truck className="h-7 w-7" />
+            <div className="bg-[#162E24] border border-[#234737] p-6 rounded-2xl text-center space-y-3">
+              <div className="w-12 h-12 bg-[#FF5524]/20 text-[#FF5524] rounded-xl flex items-center justify-center mx-auto border border-[#FF5524]/30">
+                <Truck className="h-6 w-6" />
               </div>
-              <h4 className="font-bold text-xl text-white">Proses Booking Cepat</h4>
-              <p className="text-sm text-[#F7F5F0]/70 leading-relaxed">
+              <h4 className="font-extrabold text-lg text-white">Proses Booking Cepat</h4>
+              <p className="text-xs text-stone-300 leading-relaxed">
                 Pilih tanggal, cek ketersediaan otomatis, dan langsung terhubung dengan WhatsApp admin.
               </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How to Rent Steps */}
-      <section className="py-20 bg-[#F7F5F0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-xs font-extrabold tracking-widest text-[#D96C3F] uppercase mb-2">
+        {/* How to Rent Steps */}
+        <section className="space-y-6">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-xs font-black tracking-widest text-[#FF5524] uppercase mb-1">
               Cara Penyewaan
             </h2>
-            <h3 className="text-3xl font-extrabold text-[#1C1C1C] tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
               4 Langkah Mudah Menyewa Alat
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {steps.map((step, idx) => (
               <div
                 key={idx}
-                className="bg-white p-8 rounded-2xl border border-[#EFECE6] shadow-xs relative flex flex-col justify-between"
+                className="bg-white p-6 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col justify-between space-y-3"
               >
-                <div className="space-y-4">
-                  <span className="text-4xl font-extrabold text-[#D96C3F]/30 block">
-                    {step.num}
-                  </span>
-                  <h4 className="font-bold text-lg text-[#1C1C1C]">{step.title}</h4>
-                  <p className="text-xs text-stone-600 leading-relaxed">{step.desc}</p>
-                </div>
+                <span className="text-3xl font-black text-[#FF5524]/40 block">
+                  {step.num}
+                </span>
+                <h4 className="font-extrabold text-base text-stone-900">{step.title}</h4>
+                <p className="text-xs text-stone-600 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FAQ Section */}
-      <section className="py-20 bg-white border-t border-[#EFECE6]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-xs font-extrabold tracking-widest text-[#D96C3F] uppercase mb-2">
+        {/* FAQ Section */}
+        <section className="space-y-6 bg-white p-8 sm:p-12 rounded-3xl border border-stone-200/80 shadow-xs">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <h2 className="text-xs font-black tracking-widest text-[#FF5524] uppercase mb-1">
               Pertanyaan Umum
             </h2>
-            <h3 className="text-3xl font-extrabold text-[#1C1C1C] tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
               Pertanyaan Sering Diajukan (FAQ)
             </h3>
           </div>
 
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {faqs.map((faq, idx) => (
               <div
                 key={idx}
-                className="bg-[#F7F5F0] p-6 rounded-2xl border border-[#EFECE6] shadow-xs space-y-2"
+                className="bg-[#F7F5F0] p-5 rounded-2xl border border-stone-200/60 space-y-1.5"
               >
-                <h4 className="font-bold text-[#1C1C1C] text-base flex items-start space-x-3">
-                  <HelpCircle className="h-5 w-5 text-[#D96C3F] shrink-0 mt-0.5" />
+                <h4 className="font-bold text-stone-900 text-sm flex items-start space-x-2">
+                  <HelpCircle className="h-4 w-4 text-[#FF5524] shrink-0 mt-0.5" />
                   <span>{faq.q}</span>
                 </h4>
-                <p className="text-sm text-stone-600 pl-8 leading-relaxed">{faq.a}</p>
+                <p className="text-xs text-stone-600 pl-6 leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* WhatsApp Banner CTA */}
-      <section className="py-16 bg-[#1C1C1C] text-white border-t border-[#282828]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+        {/* WhatsApp Banner CTA */}
+        <section className="py-12 bg-[#183327] text-white rounded-3xl text-center space-y-5 px-6 shadow-xl">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
             Siap Menikmati Petualangan Campingmu?
           </h2>
-          <p className="text-[#F7F5F0]/80 max-w-xl mx-auto text-base">
+          <p className="text-stone-300 max-w-xl mx-auto text-xs sm:text-sm leading-relaxed">
             Konsultasikan rencana penyewaanmu atau tanya ketersediaan stok langsung ke CS kami.
           </p>
           <div>
@@ -438,15 +307,16 @@ export default async function HomePage() {
               href={`https://wa.me/${waNumber}?text=Halo%20Lembah%20Damar%20Outdoor,%20saya%20ingin%20tanya%20sewa%20alat%20camping.`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center space-x-3 bg-[#D96C3F] hover:bg-[#C05A2E] text-white px-8 py-4 rounded-xl font-bold text-base shadow-xl transition-all transform hover:-translate-y-0.5"
+              className="inline-flex items-center space-x-2 bg-[#FF5524] hover:bg-[#E04618] text-white px-7 py-3.5 rounded-full font-extrabold text-xs uppercase tracking-wider shadow-xl transition-all transform hover:scale-105"
             >
-              <Phone className="h-5 w-5 fill-white" />
+              <Phone className="h-4 w-4 fill-white" />
               <span>Hubungi via WhatsApp</span>
             </a>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
+      <FloatingCartBar />
       <Footer />
     </div>
   );

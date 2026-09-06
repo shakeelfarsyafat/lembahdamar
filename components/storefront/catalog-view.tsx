@@ -247,7 +247,7 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {filteredProducts.map((product) => {
             const primaryImg =
               product.images.find((img) => img.isPrimary)?.url ||
@@ -257,52 +257,52 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
             return (
               <div
                 key={product.id}
-                className="group bg-white rounded-2xl border border-[#EFECE6] overflow-hidden shadow-xs hover:shadow-xl hover:border-[#D96C3F]/40 transition-all duration-300 flex flex-col justify-between"
+                className="group bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Image & Badges */}
-                <div className="relative h-56 w-full overflow-hidden bg-[#F7F5F0]">
+                <div className="relative h-48 w-full overflow-hidden bg-stone-100">
                   <img
                     src={primaryImg}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-3 left-3 bg-[#1C1C1C]/90 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-xs">
+                  <div className="absolute top-2.5 left-2.5 bg-black/85 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-xs">
                     {product.category.name}
                   </div>
                   {product.stock > 0 ? (
-                    <div className="absolute top-3 right-3 bg-[#FDF3EE] text-[#D96C3F] text-[11px] font-bold px-2.5 py-1 rounded-md border border-[#D96C3F]/30">
+                    <div className="absolute top-2.5 right-2.5 bg-white/95 text-[#FF5524] text-[10px] font-extrabold px-2.5 py-1 rounded-lg border border-stone-200 shadow-xs">
                       Stok: {product.stock}
                     </div>
                   ) : (
-                    <div className="absolute top-3 right-3 bg-rose-50 text-rose-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-rose-200">
+                    <div className="absolute top-2.5 right-2.5 bg-rose-900/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg">
                       Stok Habis
                     </div>
                   )}
                 </div>
 
                 {/* Info & Price */}
-                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-[#1C1C1C] text-lg group-hover:text-[#D96C3F] transition-colors line-clamp-1">
+                    <h3 className="font-extrabold text-stone-900 text-sm sm:text-base group-hover:text-[#FF5524] transition-colors line-clamp-1">
                       {product.name}
                     </h3>
-                    <p className="text-xs text-stone-600 mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-stone-500 mt-1 line-clamp-2 leading-relaxed">
                       {product.description}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-[#EFECE6] flex items-center justify-between gap-2">
+                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
                     <div>
-                      <span className="text-[11px] font-semibold text-stone-400 block">Sewa / Hari</span>
-                      <span className="text-lg sm:text-xl font-extrabold text-[#D96C3F]">
+                      <span className="text-[10px] font-bold text-stone-400 block">Sewa / Hari</span>
+                      <span className="text-sm sm:text-base font-black text-[#FF5524]">
                         {formatRupiah(product.pricePerDay)}
                       </span>
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1.5">
                       <Link
                         href={`/produk/${product.slug}`}
-                        className="p-2.5 bg-[#F7F5F0] hover:bg-[#EFECE6] text-[#1C1C1C] rounded-xl transition-all border border-[#EFECE6]"
+                        className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition-colors shrink-0"
                         title="Lihat Detail Produk"
                       >
                         <ChevronRight className="h-4 w-4" />
@@ -311,20 +311,20 @@ export function CatalogView({ products, categories, initialCategory }: CatalogVi
                       <button
                         onClick={(e) => handleQuickAdd(product, e)}
                         disabled={product.stock <= 0}
-                        className={`inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-xs transition-all ${
+                        className={`inline-flex items-center space-x-1 px-3 py-2 rounded-xl font-black text-xs shadow-xs transition-all cursor-pointer shrink-0 ${
                           addedItemIds.includes(product.id)
-                            ? "bg-[#1C1C1C] text-[#D96C3F]"
-                            : "bg-[#D96C3F] hover:bg-[#C05A2E] disabled:bg-stone-300 text-white"
+                            ? "bg-emerald-600 text-white"
+                            : "bg-[#FF5524] hover:bg-[#E04618] disabled:bg-stone-300 text-white"
                         }`}
                       >
                         {addedItemIds.includes(product.id) ? (
                           <>
-                            <Check className="h-4 w-4 text-[#D96C3F]" />
-                            <span>Ditambah</span>
+                            <Check className="h-3.5 w-3.5" />
+                            <span>+ Sewa</span>
                           </>
                         ) : (
                           <>
-                            <Plus className="h-4 w-4" />
+                            <Plus className="h-3.5 w-3.5" />
                             <span>+ Sewa</span>
                           </>
                         )}
