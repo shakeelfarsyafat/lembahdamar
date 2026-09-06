@@ -34,8 +34,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Katalog Produk", href: "/admin/products", icon: Package },
     { name: "Kategori", href: "/admin/categories", icon: Layers },
     { name: "Customer", href: "/admin/customers", icon: Users },
-    { name: "Pembayaran", href: "/admin/payments", icon: CreditCard },
-    { name: "Invoice", href: "/admin/invoices", icon: FileText },
     { name: "Pengaturan", href: "/admin/settings", icon: Settings },
   ];
 
