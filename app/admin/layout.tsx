@@ -9,19 +9,20 @@ import {
   Package,
   Layers,
   Users,
-  CreditCard,
-  FileText,
   Settings,
   LogOut,
   Mountain,
   Menu,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // If on login page, render children cleanly without sidebar
   if (pathname === "/admin/login") {
@@ -55,36 +56,54 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 h-screen z-50 w-64 bg-[#1C1C1C] text-white flex flex-col justify-between transition-transform duration-300 transform border-r border-[#282828] print:hidden ${
+        className={`fixed lg:sticky top-0 h-screen z-50 bg-[#1C1C1C] text-white flex flex-col justify-between transition-all duration-300 border-r border-[#282828] print:hidden ${
+          isCollapsed ? "w-20" : "w-64"
+        } ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="p-6 space-y-8 overflow-y-auto">
+        <div className="p-4 space-y-6 overflow-y-auto">
           {/* Brand Header */}
           <div className="flex items-center justify-between">
-            <Link href="/admin" className="flex items-center space-x-3">
-              <div className="bg-[#D96C3F] p-2 rounded-xl text-white">
+            <Link href="/admin" className="flex items-center space-x-3 min-w-0">
+              <div className="bg-[#D96C3F] p-2 rounded-xl text-white shrink-0">
                 <Mountain className="h-6 w-6" />
               </div>
-              <div>
-                <span className="font-extrabold text-lg text-white block leading-tight">
-                  Lembah Damar
-                </span>
-                <span className="text-[10px] font-semibold text-[#D96C3F] tracking-wider uppercase block">
-                  Admin Panel
-                </span>
-              </div>
+              {!isCollapsed && (
+                <div className="min-w-0">
+                  <span className="font-extrabold text-base text-white block leading-tight truncate">
+                    Lembah Damar
+                  </span>
+                  <span className="text-[9px] font-semibold text-[#D96C3F] tracking-wider uppercase block truncate">
+                    Admin Panel
+                  </span>
+                </div>
+              )}
             </Link>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-stone-400 hover:text-white"
-            >
-              <X className="h-6 w-6" />
-            </button>
+
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="hidden lg:flex p-1.5 text-stone-400 hover:text-white hover:bg-[#282828] rounded-lg transition-colors"
+                title={isCollapsed ? "Buka Sidebar" : "Tutup Sidebar"}
+              >
+                {isCollapsed ? (
+                  <PanelLeftOpen className="h-5 w-5 text-[#D96C3F]" />
+                ) : (
+                  <PanelLeftClose className="h-5 w-5" />
+                )}
+              </button>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden text-stone-400 hover:text-white p-1"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1">
+          <nav className="space-y-1.5 pt-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -97,14 +116,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                  title={isCollapsed ? item.name : undefined}
+                  className={`flex items-center space-x-3 py-3 rounded-xl text-xs font-semibold transition-all ${
+                    isCollapsed ? "justify-center px-0" : "px-3.5"
+                  } ${
                     isActive
                       ? "bg-[#D96C3F] text-white shadow-md font-bold"
                       : "text-[#F7F5F0]/80 hover:bg-[#282828] hover:text-white"
                   }`}
                 >
                   <Icon className="h-5 w-5 shrink-0 text-[#D96C3F]" />
-                  <span>{item.name}</span>
+                  {!isCollapsed && <span className="truncate">{item.name}</span>}
                 </Link>
               );
             })}
@@ -112,19 +134,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Footer User Info & Logout */}
-        <div className="p-4 border-t border-[#282828] bg-[#1C1C1C]">
-          <div className="flex items-center justify-between">
-            <div className="min-w-0">
-              <span className="text-xs font-bold text-white block truncate">
-                Admin Lembah Damar
-              </span>
-              <span className="text-[10px] text-[#D96C3F] block truncate">
-                admin@lembahdamar.com
-              </span>
-            </div>
+        <div className="p-3 border-t border-[#282828] bg-[#1C1C1C]">
+          <div
+            className={`flex items-center ${
+              isCollapsed ? "justify-center" : "justify-between"
+            }`}
+          >
+            {!isCollapsed && (
+              <div className="min-w-0 pr-2">
+                <span className="text-xs font-bold text-white block truncate">
+                  Admin Lembah Damar
+                </span>
+                <span className="text-[10px] text-[#D96C3F] block truncate">
+                  admin@lembahdamar.com
+                </span>
+              </div>
+            )}
             <button
               onClick={handleLogout}
-              className="p-2 text-rose-300 hover:text-rose-100 hover:bg-rose-950/50 rounded-xl transition-colors"
+              className="p-2 text-rose-300 hover:text-rose-100 hover:bg-rose-950/50 rounded-xl transition-colors shrink-0"
               title="Logout"
             >
               <LogOut className="h-5 w-5" />
@@ -136,7 +164,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden print:h-auto print:overflow-visible">
         {/* Top Navbar */}
-        <header className="bg-white border-b border-[#EFECE6] px-4 sm:px-8 py-4 flex items-center justify-between shrink-0 print:hidden">
+        <header className="bg-white border-b border-[#EFECE6] px-4 sm:px-8 py-3.5 flex items-center justify-between shrink-0 print:hidden">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -144,7 +172,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h2 className="text-sm font-bold text-stone-600 hidden sm:block">
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden lg:flex items-center space-x-2 text-xs font-bold text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-xl transition-all"
+              title={isCollapsed ? "Buka Sidebar Navigation" : "Tutup Sidebar Navigation"}
+            >
+              {isCollapsed ? (
+                <>
+                  <PanelLeftOpen className="h-4 w-4 text-[#D96C3F]" />
+                  <span>Buka Menu</span>
+                </>
+              ) : (
+                <>
+                  <PanelLeftClose className="h-4 w-4 text-stone-600" />
+                  <span>Tutup Menu</span>
+                </>
+              )}
+            </button>
+
+            <h2 className="text-xs sm:text-sm font-bold text-stone-600 hidden md:block">
               Sistem Manajemen Rental Outdoor
             </h2>
           </div>
