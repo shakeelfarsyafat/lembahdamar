@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { formatRupiah } from "@/lib/whatsapp";
 import {
   X,
   Plus,
+  Minus,
   Trash2,
   Calendar,
   User,
@@ -16,6 +17,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ShoppingBag,
+  Search,
+  Check,
 } from "lucide-react";
 
 interface ProductOption {
@@ -24,6 +27,7 @@ interface ProductOption {
   pricePerDay: number;
   stock: number;
   category?: { name: string };
+  images?: { url: string }[];
 }
 
 interface SelectedItem {
@@ -31,6 +35,7 @@ interface SelectedItem {
   productName: string;
   pricePerDay: number;
   quantity: number;
+  image?: string;
 }
 
 export function CreateBookingModal({
@@ -47,6 +52,7 @@ export function CreateBookingModal({
   // Products catalog list
   const [productsList, setProductsList] = useState<ProductOption[]>(initialProducts || []);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [catalogSearch, setCatalogSearch] = useState("");
 
   // Customer Form State
   const [customerName, setCustomerName] = useState("");
@@ -63,8 +69,6 @@ export function CreateBookingModal({
 
   // Items Form State
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
-  const [addItemId, setAddItemId] = useState("");
-  const [addItemQty, setAddItemQty] = useState(1);
 
   // Initial Payment & Status
   const [initialStatus, setInitialStatus] = useState("DIKONFIRMASI");
@@ -103,15 +107,24 @@ export function CreateBookingModal({
     }
   }, [isOpen, initialProducts]);
 
-  const handleAddItem = () => {
-    if (!addItemId) return;
-    const prod = productsList.find((p) => p.id === addItemId);
-    if (!prod) return;
+  // Filter catalog products by search query
+  const filteredCatalog = useMemo(() => {
+    if (!catalogSearch) return productsList;
+    const q = catalogSearch.toLowerCase();
+    return productsList.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        (p.category && p.category.name.toLowerCase().includes(q))
+    );
+  }, [productsList, catalogSearch]);
 
-    const existingIdx = selectedItems.findIndex((i) => i.productId === addItemId);
+  const handleAddProductFromCatalog = (prod: ProductOption) => {
+    const existingIdx = selectedItems.findIndex((i) => i.productId === prod.id);
+    const imageUrl = prod.images?.[0]?.url || "";
+
     if (existingIdx >= 0) {
       const updated = [...selectedItems];
-      updated[existingIdx].quantity += addItemQty;
+      updated[existingIdx].quantity += 1;
       setSelectedItems(updated);
     } else {
       setSelectedItems([
@@ -120,12 +133,25 @@ export function CreateBookingModal({
           productId: prod.id,
           productName: prod.name,
           pricePerDay: prod.pricePerDay,
-          quantity: addItemQty,
+          quantity: 1,
+          image: imageUrl,
         },
       ]);
     }
-    setAddItemId("");
-    setAddItemQty(1);
+  };
+
+  const handleUpdateQuantity = (productId: string, delta: number) => {
+    setSelectedItems((prev) =>
+      prev
+        .map((item) => {
+          if (item.productId === productId) {
+            const newQty = item.quantity + delta;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        })
+        .filter(Boolean) as SelectedItem[]
+    );
   };
 
   const handleRemoveItem = (index: number) => {
@@ -135,7 +161,7 @@ export function CreateBookingModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedItems.length === 0) {
-      setErrorMsg("Pilih minimal 1 barang sewa.");
+      setErrorMsg("Pilih minimal 1 barang dari katalog untuk disewa.");
       return;
     }
 
@@ -190,7 +216,7 @@ export function CreateBookingModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl border border-slate-200 relative">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl border border-slate-200 relative">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center space-x-3">
@@ -199,12 +225,12 @@ export function CreateBookingModal({
             </div>
             <div>
               <h2 className="font-extrabold text-slate-900 text-xl">Tambah Pesanan Manual</h2>
-              <p className="text-xs text-slate-500">Buat booking sewa baru untuk customer secara langsung.</p>
+              <p className="text-xs text-slate-500">Pilih alat langsung dari katalog dan isi data penyewa.</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
+            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -255,7 +281,7 @@ export function CreateBookingModal({
                 <input
                   type="text"
                   required
-                  placeholder="Jl. Puncak KM 77, Bogor..."
+                  placeholder="Jl. Raya Puncak KM 77, Cisarua, Bogor..."
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-emerald-600"
@@ -301,66 +327,140 @@ export function CreateBookingModal({
             </div>
           </div>
 
-          {/* Section 3: Pilih Barang */}
+          {/* Section 3: Katalog Produk Interaktif */}
           <div className="space-y-4">
-            <h3 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider flex items-center space-x-2 border-b border-slate-100 pb-2">
-              <Package className="h-4 w-4 text-emerald-700" />
-              <span>3. Barang / Alat Outdoor yang Disewa</span>
-            </h3>
-
-            <div className="flex flex-col sm:flex-row gap-2">
-              <select
-                value={addItemId}
-                onChange={(e) => setAddItemId(e.target.value)}
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold"
-              >
-                <option value="">-- Pilih Barang dari Katalog --</option>
-                {productsList.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({formatRupiah(p.pricePerDay)}/hari) - Stok: {p.stock}
-                  </option>
-                ))}
-              </select>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  min={1}
-                  value={addItemQty}
-                  onChange={(e) => setAddItemQty(Number(e.target.value))}
-                  className="w-20 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-center"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddItem}
-                  className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-1 shrink-0"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Tambah</span>
-                </button>
-              </div>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-2">
+              <h3 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider flex items-center space-x-2">
+                <Package className="h-4 w-4 text-emerald-700" />
+                <span>3. Pilih Barang dari Katalog Outdoor</span>
+              </h3>
+              <span className="text-xs font-bold text-emerald-800">
+                {selectedItems.length} Barang Dipilih
+              </span>
             </div>
 
-            {/* Item Table */}
+            {/* Catalog Search */}
+            <div className="relative">
+              <Search className="h-4 w-4 absolute left-3.5 top-3 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari barang katalog (misal: Tenda, Carrier, Kompor)..."
+                value={catalogSearch}
+                onChange={(e) => setCatalogSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-600"
+              />
+            </div>
+
+            {/* Catalog Grid Cards */}
+            <div className="max-h-60 overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {loadingProducts ? (
+                <p className="text-xs text-slate-400 italic py-4 col-span-2 text-center">
+                  Memuat katalog produk...
+                </p>
+              ) : filteredCatalog.length === 0 ? (
+                <p className="text-xs text-slate-400 italic py-4 col-span-2 text-center">
+                  Tidak ada barang ditemukan.
+                </p>
+              ) : (
+                filteredCatalog.map((prod) => {
+                  const isSelected = selectedItems.some((i) => i.productId === prod.id);
+                  const selectedQty = selectedItems.find((i) => i.productId === prod.id)?.quantity || 0;
+
+                  return (
+                    <div
+                      key={prod.id}
+                      className={`p-3 rounded-2xl border transition-all flex items-center justify-between text-xs ${
+                        isSelected
+                          ? "bg-emerald-50/80 border-emerald-300"
+                          : "bg-slate-50 hover:bg-slate-100 border-slate-200"
+                      }`}
+                    >
+                      <div className="space-y-0.5 min-w-0 pr-2">
+                        <span className="font-bold text-slate-900 block truncate">{prod.name}</span>
+                        <div className="flex items-center space-x-2 text-[10px]">
+                          <span className="font-extrabold text-emerald-800">
+                            {formatRupiah(prod.pricePerDay)}/hari
+                          </span>
+                          <span className="text-slate-400">• Stok: {prod.stock}</span>
+                        </div>
+                      </div>
+
+                      {isSelected ? (
+                        <div className="flex items-center space-x-1.5 shrink-0 bg-white px-2 py-1 rounded-xl border border-emerald-300">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(prod.id, -1)}
+                            className="p-1 hover:bg-slate-100 rounded text-slate-700"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="font-extrabold text-emerald-800 px-1">{selectedQty}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(prod.id, 1)}
+                            className="p-1 hover:bg-slate-100 rounded text-slate-700"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleAddProductFromCatalog(prod)}
+                          className="px-3 py-1.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded-xl text-[11px] flex items-center space-x-1 shrink-0 transition-all cursor-pointer"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          <span>Pilih</span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Selected Items Summary Table */}
             {selectedItems.length > 0 && (
-              <div className="border border-slate-200 rounded-2xl overflow-hidden text-xs">
-                <table className="w-full text-left border-collapse">
+              <div className="border border-slate-200 rounded-2xl overflow-hidden text-xs space-y-0 mt-4">
+                <div className="bg-slate-900 text-white px-4 py-2.5 font-bold flex justify-between items-center text-xs">
+                  <span>Rincian Barang Dipilih ({selectedItems.length} Jenis)</span>
+                  <span>Durasi: {durationDays} Hari</span>
+                </div>
+                <table className="w-full text-left border-collapse bg-white">
                   <thead>
-                    <tr className="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold">
-                      <th className="py-2.5 px-3">Nama Alat</th>
-                      <th className="py-2.5 px-3 text-center">Qty</th>
+                    <tr className="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold text-[11px]">
+                      <th className="py-2.5 px-4">Nama Peralatan</th>
+                      <th className="py-2.5 px-3 text-center">Jumlah Unit</th>
                       <th className="py-2.5 px-3 text-right">Harga/Hari</th>
-                      <th className="py-2.5 px-3 text-right">Subtotal</th>
+                      <th className="py-2.5 px-4 text-right">Subtotal</th>
                       <th className="py-2.5 px-2 text-center">Hapus</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
                     {selectedItems.map((item, idx) => (
                       <tr key={idx}>
-                        <td className="py-2.5 px-3 font-bold text-slate-900">{item.productName}</td>
-                        <td className="py-2.5 px-3 text-center">{item.quantity} Unit</td>
+                        <td className="py-2.5 px-4 font-bold text-slate-900">{item.productName}</td>
+                        <td className="py-2.5 px-3 text-center font-bold">
+                          <div className="inline-flex items-center space-x-1 bg-slate-100 px-2 py-0.5 rounded-lg">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(item.productId, -1)}
+                              className="text-slate-600 hover:text-slate-900 font-bold"
+                            >
+                              -
+                            </button>
+                            <span className="px-1 text-slate-900">{item.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(item.productId, 1)}
+                              className="text-slate-600 hover:text-slate-900 font-bold"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
                         <td className="py-2.5 px-3 text-right">{formatRupiah(item.pricePerDay)}</td>
-                        <td className="py-2.5 px-3 text-right font-extrabold text-emerald-800">
+                        <td className="py-2.5 px-4 text-right font-extrabold text-emerald-800">
                           {formatRupiah(item.pricePerDay * item.quantity * durationDays)}
                         </td>
                         <td className="py-2.5 px-2 text-center">
@@ -458,14 +558,14 @@ export function CreateBookingModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+              className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold rounded-xl text-xs shadow-md transition-all"
+              className="flex-1 py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold rounded-xl text-xs shadow-md transition-all cursor-pointer"
             >
               {isSubmitting ? "Menyimpan..." : "Simpan Pesanan"}
             </button>
