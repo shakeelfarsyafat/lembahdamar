@@ -3,6 +3,8 @@ import { db } from "@/lib/db/prisma";
 import { verifyAdminSession } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const productSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(2, "Nama produk minimal 2 karakter"),

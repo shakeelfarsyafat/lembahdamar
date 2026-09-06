@@ -4,6 +4,8 @@ import { generateBookingCode, generateInvoiceNumber } from "@/lib/invoice";
 import { generateWhatsAppLink, WhatsAppBookingPayload } from "@/lib/whatsapp";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const createBookingSchema = z.object({
   customerName: z.string().min(2, "Nama minimal 2 karakter"),
   customerPhone: z.string().min(8, "Nomor WhatsApp tidak valid"),
