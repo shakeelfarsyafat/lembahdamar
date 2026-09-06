@@ -20,12 +20,14 @@ import {
   Compass,
   Phone,
   HelpCircle,
+  ArrowRight,
 } from "lucide-react";
 
-export const revalidate = 60; // Refresh every 60s
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function HomePage() {
-  const [categories, popularProducts, settings] = await Promise.all([
+  const [categories, popularProducts, settings, partners, galleryItems] = await Promise.all([
     db.category.findMany({
       take: 8,
       orderBy: { name: "asc" },
@@ -39,6 +41,14 @@ export default async function HomePage() {
       },
     }),
     db.setting.findUnique({ where: { id: "default" } }),
+    db.partner.findMany({
+      take: 10,
+      orderBy: { createdAt: "desc" },
+    }),
+    db.galleryItem.findMany({
+      take: 6,
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   const getCategoryIcon = (iconName: string | null) => {
@@ -293,6 +303,95 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+
+        {/* Mitra Kerja Sama & Dokumentasi Galeri */}
+        {(partners.length > 0 || galleryItems.length > 0) && (
+          <section className="space-y-8 bg-white p-8 sm:p-12 rounded-3xl border border-stone-200/80 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-stone-200 pb-4">
+              <div>
+                <span className="text-xs font-black tracking-widest text-[#FF5524] uppercase block mb-1">
+                  Portofolio & Rekam Jejak
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+                  Mitra Kerja Sama & Galeri Kegiatan
+                </h3>
+              </div>
+              <Link
+                href="/galeri"
+                className="inline-flex items-center space-x-1.5 text-xs font-extrabold text-[#FF5524] hover:text-[#E04618] uppercase tracking-wider group"
+              >
+                <span>Buka Halaman Galeri Lengkap</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Logo Mitra Grid */}
+            {partners.length > 0 && (
+              <div className="space-y-3">
+                <span className="text-[11px] font-extrabold text-stone-500 uppercase tracking-wider block">
+                  Mitra Resmi & Komunitas:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+                  {partners.map((partner) => (
+                    <div
+                      key={partner.id}
+                      className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80 flex flex-col items-center justify-center text-center space-y-2 group hover:border-[#FF5524]/50 hover:bg-white transition-all shadow-xs"
+                    >
+                      <div className="w-full h-16 rounded-xl flex items-center justify-center p-2 group-hover:scale-105 transition-transform">
+                        <img
+                          src={partner.logoUrl}
+                          alt={partner.name}
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      </div>
+                      <span className="text-xs font-bold text-stone-800 truncate max-w-[120px] block">
+                        {partner.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Gallery Photos Grid */}
+            {galleryItems.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <span className="text-[11px] font-extrabold text-stone-500 uppercase tracking-wider block">
+                  Foto Dokumentasi Terbaru:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {galleryItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all group hover:border-[#FF5524]/40"
+                    >
+                      <div className="relative h-52 w-full overflow-hidden bg-stone-100">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2.5 left-2.5 bg-black/80 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-xs">
+                          {item.category || "Dokumentasi"}
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-1">
+                        <h4 className="font-extrabold text-stone-900 text-sm group-hover:text-[#FF5524] transition-colors truncate">
+                          {item.title}
+                        </h4>
+                        {item.description && (
+                          <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed">
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* WhatsApp Banner CTA */}
         <section className="py-12 bg-[#183327] text-white rounded-3xl text-center space-y-5 px-6 shadow-xl">

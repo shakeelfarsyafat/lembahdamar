@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Trash2, Image as ImageIcon, Building, X, CheckCircle2, AlertCircle, Upload } from "lucide-react";
 import { compressImage } from "@/lib/image-compressor";
 
@@ -25,6 +26,7 @@ interface GalleryManagerProps {
 }
 
 export function GalleryManager({ initialPartners, initialGalleryItems }: GalleryManagerProps) {
+  const router = useRouter();
   const [partners, setPartners] = useState<Partner[]>(initialPartners);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(initialGalleryItems);
   const [activeTab, setActiveTab] = useState<"partners" | "gallery">("partners");
@@ -56,16 +58,20 @@ export function GalleryManager({ initialPartners, initialGalleryItems }: Gallery
       mimeType: "image/webp",
     });
 
-    const formData = new FormData();
-    formData.append("file", compressed.file);
+    try {
+      const formData = new FormData();
+      formData.append("file", compressed.file);
 
-    const res = await fetch("/api/admin/upload", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Gagal mengunggah file gambar");
-    return data.url;
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) return data.url;
+      return compressed.dataUrl;
+    } catch {
+      return compressed.dataUrl;
+    }
   };
 
   const handlePartnerFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,6 +130,7 @@ export function GalleryManager({ initialPartners, initialGalleryItems }: Gallery
       setPartnerName("");
       setPartnerLogoUrl("");
       setToastMsg("Logo mitra berhasil ditambahkan!");
+      router.refresh();
       setTimeout(() => setToastMsg(""), 3000);
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -139,6 +146,7 @@ export function GalleryManager({ initialPartners, initialGalleryItems }: Gallery
       if (res.ok) {
         setPartners(partners.filter((p) => p.id !== id));
         setToastMsg("Mitra dihapus");
+        router.refresh();
         setTimeout(() => setToastMsg(""), 3000);
       }
     } catch (e) {
@@ -174,6 +182,7 @@ export function GalleryManager({ initialPartners, initialGalleryItems }: Gallery
       setGalleryImageUrl("");
       setGalleryDesc("");
       setToastMsg("Foto galeri berhasil ditambahkan!");
+      router.refresh();
       setTimeout(() => setToastMsg(""), 3000);
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -189,6 +198,7 @@ export function GalleryManager({ initialPartners, initialGalleryItems }: Gallery
       if (res.ok) {
         setGalleryItems(galleryItems.filter((g) => g.id !== id));
         setToastMsg("Foto galeri dihapus");
+        router.refresh();
         setTimeout(() => setToastMsg(""), 3000);
       }
     } catch (e) {

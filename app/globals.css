@@ -68,7 +68,7 @@ h1, h2, h3, h4, h5, h6 {
   .print-only {
     display: block !important;
   }
-  .invoice-card {
+  .invoice-card, .invoice-sheet {
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
