@@ -24,14 +24,38 @@ export const metadata: Metadata = {
     "sewa carrier deuter",
     "lembah damar outdoor",
   ],
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/logo-hero.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png" },
+    ],
+    shortcut: ["/logo-hero.png"],
+  },
   openGraph: {
     title: "Lembah Damar Outdoor - Penyewaan Alat Camping & Outdoor",
     description:
-      "Perlengkapan sewa camping terlengkap & terawat. Tenda, sleeping bag, kompor, matras, dan perlengkapan mendaki gunung.",
+      "Perlengkapan sewa camping terlengkap & terawat di Lembah Damar Outdoor. Tenda dome, sleeping bag, kompor, matras, dan perlengkapan mendaki gunung.",
     url: "https://lembahdamaroutdoor.com",
     siteName: "Lembah Damar Outdoor",
     locale: "id_ID",
     type: "website",
+    images: [
+      {
+        url: "/logo-hero.png",
+        width: 1200,
+        height: 630,
+        alt: "DAMARRENT - Lembah Damar Outdoor",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lembah Damar Outdoor - Rental Alat Camping",
+    description: "Sewa alat camping dan outdoor terlengkap di Bogor. Kualitas terawat & proses cepat.",
+    images: ["/logo-hero.png"],
   },
   robots: {
     index: true,

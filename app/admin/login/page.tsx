@@ -66,8 +66,12 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md space-y-8 relative z-10">
         {/* Brand Header */}
         <div className="text-center space-y-3">
-          <div className="w-16 h-16 bg-[#D96C3F] text-white rounded-2xl flex items-center justify-center mx-auto shadow-2xl ring-4 ring-[#D96C3F]/20">
-            <Mountain className="h-8 w-8" />
+          <div className="bg-white p-3 rounded-2xl inline-flex items-center justify-center mx-auto shadow-2xl ring-4 ring-white/10">
+            <img
+              src="/logo-hero.png"
+              alt="DAMARRENT - Lembah Damar"
+              className="h-10 sm:h-12 w-auto object-contain"
+            />
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-white tracking-tight">

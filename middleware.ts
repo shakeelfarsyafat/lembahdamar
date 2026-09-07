@@ -6,10 +6,10 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || "lembahdamar-super-secret-key-2026"
 );
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect /admin routes (except /admin/login)
+  // Protect all /admin routes (except /admin/login)
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const token = request.cookies.get("admin_session")?.value;
 
@@ -20,10 +20,24 @@ export async function proxy(request: NextRequest) {
 
     try {
       await jwtVerify(token, SECRET_KEY);
-      return NextResponse.next();
+      const response = NextResponse.next();
+      // Cegah caching halaman admin di history browser
+      response.headers.set(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+      );
+      response.headers.set("Pragma", "no-cache");
+      response.headers.set("Expires", "0");
+      return response;
     } catch (err) {
       const loginUrl = new URL("/admin/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.set("admin_session", "", {
+        path: "/",
+        maxAge: 0,
+        expires: new Date(0),
+      });
+      return response;
     }
   }
 
@@ -35,7 +49,7 @@ export async function proxy(request: NextRequest) {
         await jwtVerify(token, SECRET_KEY);
         return NextResponse.redirect(new URL("/admin", request.url));
       } catch (err) {
-        // Token invalid, stay on login
+        // Token invalid, allow login
       }
     }
   }

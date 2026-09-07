@@ -8,14 +8,15 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Col 1: Brand Info */}
           <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <div className="bg-[#FF5524] text-white p-1.5 rounded-lg">
-                <Mountain className="h-4 w-4" />
+            <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
+              <div className="bg-white px-3 py-1.5 rounded-xl inline-flex items-center shadow-sm">
+                <img
+                  src="/logo-hero.png"
+                  alt="DAMARRENT - Lembah Damar Outdoor"
+                  className="h-8 sm:h-9 w-auto object-contain"
+                />
               </div>
-              <span className="text-base font-black text-white uppercase tracking-tight">
-                LEMBAH DAMAR
-              </span>
-            </div>
+            </Link>
             <p className="text-stone-300 text-[11px] leading-relaxed">
               Penyewaan perlengkapan camping dan outdoor terlengkap di Bogor. Siap menemani setiap petualangan gunung dan alam bebasmu dengan alat berkualitas.
             </p>

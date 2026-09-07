@@ -13,7 +13,7 @@ export function SubpageHeader({
   backLabel = "Kembali ke Beranda",
 }: SubpageHeaderProps) {
   return (
-    <header className="bg-[#1c1c1e] text-white py-3.5 px-4 sm:px-6 shadow-md sticky top-0 z-30">
+    <header className="bg-[#1c1c1e] text-white py-2.5 px-4 sm:px-6 shadow-md sticky top-0 z-30">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         <Link
           href={backHref}
@@ -23,11 +23,22 @@ export function SubpageHeader({
           <span>{backLabel}</span>
         </Link>
 
-        {title && (
-          <span className="text-xs font-black tracking-widest text-orange-400 uppercase hidden sm:inline-block">
-            {title}
-          </span>
-        )}
+        <div className="flex items-center space-x-3">
+          {title && (
+            <span className="text-xs font-black tracking-widest text-orange-400 uppercase hidden md:inline-block">
+              {title}
+            </span>
+          )}
+          <Link href="/" className="inline-flex items-center hover:opacity-90 transition-opacity">
+            <div className="bg-white px-2.5 py-1 rounded-xl flex items-center shadow-xs">
+              <img
+                src="/logo-hero.png"
+                alt="DAMARRENT"
+                className="h-5 sm:h-6 w-auto object-contain"
+              />
+            </div>
+          </Link>
+        </div>
       </div>
     </header>
   );

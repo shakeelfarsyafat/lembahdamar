@@ -59,17 +59,18 @@ export function HeroNavigation({ heroGraphicUrl }: HeroNavigationProps) {
       {/* 1. TOP BAR: Dark Bar with Centered Search */}
       <header className="w-full bg-[#1c1c1e] text-white py-2.5 px-4 sm:px-6 shadow-md z-30">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          {/* Brand Logo Kecil (Kiri) */}
+          {/* Brand Logo Resmi (Kiri) */}
           <Link
             href="/"
-            className="flex items-center gap-2 text-white hover:text-orange-400 transition-colors shrink-0"
+            className="flex items-center gap-2 hover:opacity-90 transition-opacity shrink-0"
           >
-            <div className="bg-[#FF5500] text-white p-1.5 rounded-lg">
-              <Mountain className="h-4 w-4" />
+            <div className="bg-white px-2.5 py-1 rounded-xl flex items-center shadow-xs">
+              <img
+                src="/logo-hero.png"
+                alt="DAMARRENT - Lembah Damar Outdoor"
+                className="h-6 sm:h-7 w-auto object-contain"
+              />
             </div>
-            <span className="text-sm font-black tracking-tight uppercase hidden sm:inline-block">
-              LEMBAH DAMAR
-            </span>
           </Link>
 
           {/* Centered Search Bar */}

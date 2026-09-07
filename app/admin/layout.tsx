@@ -39,9 +39,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const handleLogout = async () => {
-    await fetch("/api/admin/auth/logout", { method: "POST" });
-    router.push("/admin/login");
-    router.refresh();
+    try {
+      await fetch("/api/admin/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
+    // Hard redirect to clear browser cache and session state completely
+    window.location.href = "/admin/login";
   };
 
   return (
@@ -66,15 +70,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Brand Header */}
           <div className="flex items-center justify-between">
             <Link href="/admin" className="flex items-center space-x-3 min-w-0">
-              <div className="bg-[#D96C3F] p-2 rounded-xl text-white shrink-0">
-                <Mountain className="h-6 w-6" />
+              <div className="bg-white p-1.5 rounded-xl shrink-0 shadow-xs">
+                <img
+                  src="/logo-hero.png"
+                  alt="DAMARRENT"
+                  className="h-7 w-auto object-contain"
+                />
               </div>
               {!isCollapsed && (
                 <div className="min-w-0">
-                  <span className="font-extrabold text-base text-white block leading-tight truncate">
+                  <span className="font-extrabold text-sm text-white block leading-tight truncate">
                     Lembah Damar
                   </span>
-                  <span className="text-[9px] font-semibold text-[#D96C3F] tracking-wider uppercase block truncate">
+                  <span className="text-[9px] font-semibold text-[#FF5524] tracking-wider uppercase block truncate">
                     Admin Panel
                   </span>
                 </div>
