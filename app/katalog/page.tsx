@@ -1,7 +1,7 @@
-import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
 import { CatalogView } from "@/components/storefront/catalog-view";
 import { FloatingCartBar } from "@/components/storefront/floating-cart-bar";
+import { SubpageHeader } from "@/components/storefront/subpage-header";
 import { db } from "@/lib/db/prisma";
 
 export const revalidate = 60;
@@ -32,7 +32,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <SubpageHeader title="LEMBAH DAMAR KATALOG" />
       <main className="flex-1 bg-[#fcfdfc]">
         <CatalogView
           products={products}

@@ -1,5 +1,5 @@
-import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
+import { SubpageHeader } from "@/components/storefront/subpage-header";
 import Link from "next/link";
 import { Tent, Calendar, PhoneCall, ShieldCheck, CheckCircle2 } from "lucide-react";
 
@@ -34,7 +34,7 @@ export default function CaraSewaPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F5F0]">
-      <Navbar />
+      <SubpageHeader title="LEMBAH DAMAR CARA SEWA" />
       <main className="flex-1 bg-[#F7F5F0] py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           {/* Header */}

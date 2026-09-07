@@ -1,11 +1,10 @@
-import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
 import { FloatingCartBar } from "@/components/storefront/floating-cart-bar";
+import { SubpageHeader } from "@/components/storefront/subpage-header";
 import { db } from "@/lib/db/prisma";
 import { Building2, Camera, Sparkles } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 export const metadata = {
   title: "Galeri & Portofolio Mitra - Lembah Damar Outdoor",
@@ -20,8 +19,7 @@ export default async function GaleriPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F5F0] font-sans">
-      <Navbar />
-
+      <SubpageHeader title="LEMBAH DAMAR GALERI" />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-16 w-full">
         {/* Header Title */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">

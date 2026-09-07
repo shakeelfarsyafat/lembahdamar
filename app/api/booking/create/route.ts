@@ -25,6 +25,10 @@ const createBookingSchema = z.object({
     })
   ),
   totalAmount: z.number().min(0),
+  paymentMethod: z.string().optional(),
+  bankName: z.string().optional(),
+  transferAmount: z.number().min(0).optional(),
+  paymentType: z.enum(["DP", "LUNAS", "BELUM_BAYAR"]).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -68,6 +72,13 @@ export async function POST(request: NextRequest) {
     const startDate = new Date(validated.startDateStr);
     const endDate = new Date(validated.endDateStr);
 
+    // Compute payment status based on transferAmount
+    const transferAmount = Number(validated.transferAmount) || 0;
+    const isLunas = transferAmount >= validated.totalAmount && validated.totalAmount > 0;
+    const isDp = transferAmount > 0 && !isLunas;
+    const paymentStatus = isLunas ? "LUNAS" : isDp ? "DP" : "BELUM_DIBAYAR";
+    const paymentType = isLunas ? "LUNAS" : isDp ? "DP" : "BELUM_BAYAR";
+
     // 4. Create Booking, Items, Invoice, and Status History in database
     const booking = await db.booking.create({
       data: {
@@ -79,7 +90,7 @@ export async function POST(request: NextRequest) {
         subtotal: validated.totalAmount,
         totalAmount: validated.totalAmount,
         status: "MENUNGGU",
-        paymentStatus: "BELUM_DIBAYAR",
+        paymentStatus,
         notes: validated.customerNotes || null,
         items: {
           create: validated.items.map((item: any) => ({
@@ -93,15 +104,32 @@ export async function POST(request: NextRequest) {
           create: {
             invoiceNumber,
             totalAmount: validated.totalAmount,
-            dpAmount: 0,
-            remainingAmount: validated.totalAmount,
-            status: "DRAFT",
+            dpAmount: isLunas ? 0 : transferAmount,
+            remainingAmount: Math.max(0, validated.totalAmount - transferAmount),
+            status: isLunas ? "PAID" : isDp ? "ISSUED" : "DRAFT",
           },
         },
+        ...(transferAmount > 0
+          ? {
+              payments: {
+                create: {
+                  amount: transferAmount,
+                  paymentMethod: validated.paymentMethod || "TRANSFER_BANK",
+                  paymentType,
+                  status: "LUNAS",
+                  notes: `${
+                    validated.paymentMethod === "QRIS"
+                      ? "QRIS"
+                      : `Transfer Bank ${validated.bankName || "BCA"}`
+                  } via storefront (${paymentType})`,
+                },
+              },
+            }
+          : {}),
         statusHistories: {
           create: {
             status: "MENUNGGU",
-            notes: "Booking dibuat via WhatsApp storefront",
+            notes: `Booking dibuat via storefront (${paymentStatus}: Rp ${transferAmount.toLocaleString("id-ID")})`,
           },
         },
       },
@@ -119,6 +147,11 @@ export async function POST(request: NextRequest) {
       items: validated.items,
       totalAmount: validated.totalAmount,
       adminWaNumber,
+      bookingCode: booking.bookingCode,
+      paymentMethod: validated.paymentMethod,
+      bankName: validated.bankName,
+      transferAmount,
+      paymentType,
     };
 
     const waLink = generateWhatsAppLink(waPayload);
@@ -127,6 +160,8 @@ export async function POST(request: NextRequest) {
       success: true,
       bookingCode: booking.bookingCode,
       waLink,
+      paymentStatus,
+      transferAmount,
     });
   } catch (error: any) {
     if (error instanceof z.ZodError) {

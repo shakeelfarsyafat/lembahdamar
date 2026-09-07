@@ -44,3 +44,14 @@ prisma/*.db
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE & Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Scratch & Temporary
+scratch/
+
+

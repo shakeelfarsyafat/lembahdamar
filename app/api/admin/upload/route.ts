@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +27,28 @@ export async function POST(request: NextRequest) {
     }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const inputBuffer = Buffer.from(bytes);
+    const originalSize = inputBuffer.length;
 
-    // Extract & sanitize extension
-    let ext = path.extname(file.name).toLowerCase();
-    if (!ext || ext === ".") {
-      ext = file.type === "image/webp" ? ".webp" : file.type === "image/png" ? ".png" : ".jpg";
+    // Convert and compress to WebP using Sharp
+    let webpBuffer: Buffer;
+    try {
+      webpBuffer = await sharp(inputBuffer)
+        .rotate() // Auto-orient based on EXIF
+        .resize({
+          width: 1280,
+          height: 1280,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({
+          quality: 82,
+          effort: 4,
+        })
+        .toBuffer();
+    } catch (sharpErr: any) {
+      console.warn("Sharp image conversion failed, falling back to original buffer:", sharpErr.message);
+      webpBuffer = inputBuffer;
     }
 
     const safeBase = file.name
@@ -41,35 +58,39 @@ export async function POST(request: NextRequest) {
       .substring(0, 30);
 
     const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const filename = `${safeBase ? safeBase + "-" : ""}${Date.now()}-${randomSuffix}${ext}`;
+    const filename = `${safeBase ? safeBase + "-" : ""}${Date.now()}-${randomSuffix}.webp`;
 
-    // Attempt writing to public/uploads (works in local dev & persistent VPS)
+    // Attempt writing to public/uploads
     try {
       const uploadDir = path.join(process.cwd(), "public", "uploads");
       await mkdir(uploadDir, { recursive: true });
 
       const filePath = path.join(uploadDir, filename);
-      await writeFile(filePath, buffer);
+      await writeFile(filePath, webpBuffer);
 
       const publicUrl = `/uploads/${filename}`;
       return NextResponse.json({
         success: true,
         url: publicUrl,
-        size: buffer.length,
+        size: webpBuffer.length,
+        originalSize,
+        compressed: webpBuffer.length < originalSize,
+        format: "webp",
         filename,
       });
     } catch (fsErr: any) {
-      // If filesystem is read-only (such as Vercel Serverless / AWS Lambda),
-      // seamlessly fallback to base64 Data URL so upload NEVER breaks!
-      console.warn("Server filesystem read-only (e.g. Vercel), falling back to data URL:", fsErr.message);
-      const mime = ext === ".webp" ? "image/webp" : ext === ".png" ? "image/png" : "image/jpeg";
-      const base64 = buffer.toString("base64");
-      const dataUrl = `data:${mime};base64,${base64}`;
+      // If filesystem is read-only (e.g. Vercel Serverless), fallback to base64 WebP data URL
+      console.warn("Server filesystem read-only, falling back to base64 Data URL:", fsErr.message);
+      const base64 = webpBuffer.toString("base64");
+      const dataUrl = `data:image/webp;base64,${base64}`;
 
       return NextResponse.json({
         success: true,
         url: dataUrl,
-        size: buffer.length,
+        size: webpBuffer.length,
+        originalSize,
+        compressed: true,
+        format: "webp",
         filename,
         storage: "base64",
       });

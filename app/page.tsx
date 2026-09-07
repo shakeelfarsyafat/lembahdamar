@@ -1,14 +1,12 @@
 import Link from "next/link";
-import { Navbar } from "@/components/storefront/navbar";
+import { HeroNavigation } from "@/components/storefront/hero-navigation";
 import { Footer } from "@/components/storefront/footer";
-import { HomeProductCard } from "@/components/storefront/home-product-card";
+import { PopularProductsSlider } from "@/components/storefront/popular-products-slider";
+import { HomeEducationSection } from "@/components/storefront/home-education-section";
+import { PartnerSlider } from "@/components/storefront/partner-slider";
 import { FloatingCartBar } from "@/components/storefront/floating-cart-bar";
 import { db } from "@/lib/db/prisma";
-import { formatRupiah } from "@/lib/whatsapp";
 import {
-  ShieldCheck,
-  Sparkles,
-  Truck,
   Tent,
   Bed,
   Flame,
@@ -18,59 +16,55 @@ import {
   Lightbulb,
   Armchair,
   Compass,
-  Phone,
-  HelpCircle,
-  ArrowRight,
 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 export default async function HomePage() {
-  const [categories, popularProducts, settings, partners, galleryItems] = await Promise.all([
+  const [categories, popularProducts, partners, articles] = await Promise.all([
     db.category.findMany({
       take: 8,
       orderBy: { name: "asc" },
     }),
     db.product.findMany({
       where: { isActive: true, isPopular: true },
-      take: 6,
+      take: 12,
       include: {
         category: true,
         images: true,
       },
     }),
-    db.setting.findUnique({ where: { id: "default" } }),
     db.partner.findMany({
-      take: 10,
+      take: 15,
       orderBy: { createdAt: "desc" },
     }),
-    db.galleryItem.findMany({
+    db.article.findMany({
+      where: { isPublished: true },
       take: 6,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
     }),
   ]);
 
-  const getCategoryIcon = (iconName: string | null) => {
+  const getCategoryIcon = (iconName: string | null, className = "h-8 w-8 stroke-[1.5]") => {
     switch (iconName) {
       case "Tent":
-        return <Tent className="h-10 w-10 stroke-[1.5]" />;
+        return <Tent className={className} />;
       case "Backpack":
-        return <Backpack className="h-10 w-10 stroke-[1.5]" />;
+        return <Backpack className={className} />;
       case "Bed":
-        return <Bed className="h-10 w-10 stroke-[1.5]" />;
+        return <Bed className={className} />;
       case "Flame":
-        return <Flame className="h-10 w-10 stroke-[1.5]" />;
+        return <Flame className={className} />;
       case "Layers":
-        return <Layers className="h-10 w-10 stroke-[1.5]" />;
+        return <Layers className={className} />;
       case "Lightbulb":
-        return <Lightbulb className="h-10 w-10 stroke-[1.5]" />;
+        return <Lightbulb className={className} />;
       case "Utensils":
-        return <Utensils className="h-10 w-10 stroke-[1.5]" />;
+        return <Utensils className={className} />;
       case "Armchair":
-        return <Armchair className="h-10 w-10 stroke-[1.5]" />;
+        return <Armchair className={className} />;
       default:
-        return <Compass className="h-10 w-10 stroke-[1.5]" />;
+        return <Compass className={className} />;
     }
   };
 
@@ -97,95 +91,39 @@ export default async function HomePage() {
     },
   ];
 
-  const faqs = [
-    {
-      q: "Persyaratan apa saja yang dibutuhkan untuk menyewa?",
-      a: "Cukup menyerahkan 1 e-KTP atau SIM asli milik penanggung jawab sewa sebagai jaminan selama masa penyewaan.",
-    },
-    {
-      q: "Bagaimana jika alat yang disewa kotor atau basah?",
-      a: "Tenda dan matras yang basah akibat hujan wajar. Namun, mohon bersihkan sisa sisa tanah atau makanan di dalam tenda dan alat masak sebelum dikembalikan.",
-    },
-    {
-      q: "Apakah ada batas waktu jam pengembalian barang?",
-      a: "Pengembalian barang dapat dilakukan pada jam operasional basecamp (07.00 - 21.00 WIB) di tanggal terakhir masa sewa.",
-    },
-    {
-      q: "Apakah ketersediaan alat dapat dipesan jauh-jauh hari?",
-      a: "Sangat disarankan! Booking jauh-jauh hari dengan membayar DP 50% untuk mengamankan stok perlengkapan pada tanggal petualanganmu.",
-    },
-  ];
-
-  const waNumber = settings?.waNumber || "6281563105682";
-
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F5F0] font-sans">
-      <Navbar />
-
-      {/* Hero Banner Section */}
-      <section className="relative w-full h-[450px] sm:h-[520px] lg:h-[580px] bg-stone-900 overflow-hidden flex items-center">
-        {/* Background Image */}
-        <img
-          src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1600&q=80"
-          alt="Outdoor Camping Background"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-
-        {/* Dark Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-transparent" />
-
-        {/* Hero Content */}
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 w-full z-10">
-          <div className="max-w-2xl space-y-4 text-left">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight leading-[1.15]">
-              SEWA ALAT CAMPING TERLENGKAP DI LEMBAH DAMAR!
-            </h1>
-
-            <p className="text-sm sm:text-base text-stone-200 font-medium leading-relaxed max-w-xl">
-              Mudah, Aman, dan Siap Berpetualang! Jelajahi alam Puncak & Bogor dengan peralatan kualitas terbaik kami.
-            </p>
-
-            <div className="pt-3">
-              <Link
-                href="/katalog"
-                className="inline-block bg-[#FF5524] hover:bg-[#E04618] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider px-8 py-3.5 rounded-full shadow-2xl transition-all transform hover:scale-105 cursor-pointer"
-              >
-                CEK KETERSEDIAAN
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroNavigation />
 
       {/* Main Content Container */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12 space-y-16 w-full flex-1">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-8 sm:space-y-16 w-full flex-1">
         {/* KATEGORI ALAT Section */}
-        <section className="space-y-6">
+        <section className="space-y-3 sm:space-y-6">
           <h2 className="text-lg font-black text-stone-900 tracking-wider uppercase">
             KATEGORI ALAT
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3.5">
             {categories.slice(0, 6).map((cat, idx) => (
               <Link
                 key={cat.id}
                 href={`/katalog?category=${cat.slug}`}
-                className="bg-[#EBE7E1] p-6 rounded-2xl hover:shadow-lg transition-all duration-300 relative flex flex-col justify-between h-48 border border-stone-300/60 group"
+                className="bg-[#EBE7E1] p-2 sm:p-3.5 rounded-xl sm:rounded-2xl hover:shadow-md transition-all duration-300 relative flex flex-col justify-between h-20 sm:h-32 lg:h-36 border border-stone-300/60 group hover:-translate-y-0.5"
               >
-                <span className="text-stone-500 font-bold text-sm absolute top-4 left-4">
+                <span className="text-stone-400 font-bold text-[9px] sm:text-xs absolute top-1.5 left-2 sm:top-2.5 sm:left-3">
                   {idx + 1}.
                 </span>
-                <div className="w-full flex justify-center py-2">
-                  <div className="w-20 h-16 relative flex items-center justify-center text-stone-700 group-hover:scale-110 transition-transform">
-                    {getCategoryIcon(cat.icon)}
+                <div className="w-full flex justify-center pt-0.5 sm:pt-2 pb-0 sm:pb-1">
+                  <div className="relative flex items-center justify-center text-stone-700 group-hover:scale-110 group-hover:text-[#FF5500] transition-all">
+                    {getCategoryIcon(cat.icon, "h-5 w-5 sm:h-7 sm:w-7 stroke-[1.6]")}
                   </div>
                 </div>
-                <div>
-                  <h3 className="font-extrabold text-stone-900 text-sm tracking-wide uppercase">
+                <div className="w-full text-left">
+                  <h3 className="font-extrabold text-stone-900 text-[10px] sm:text-xs tracking-tight uppercase line-clamp-1" title={cat.name}>
                     {cat.name}
                   </h3>
-                  <p className="text-xs text-stone-600 mt-0.5">
-                    Pilihan alat outdoor {cat.name.toLowerCase()} berkualitas
+                  <p className="hidden sm:block text-[9px] sm:text-[10px] text-stone-500 leading-tight mt-0.5 line-clamp-1">
+                    Pilihan alat {cat.name.toLowerCase()}
                   </p>
                 </div>
               </Link>
@@ -194,225 +132,50 @@ export default async function HomePage() {
         </section>
 
         {/* PRODUK POPULER Section */}
-        <section className="space-y-6">
-          <h2 className="text-lg font-black text-stone-900 tracking-wider uppercase">
-            PRODUK POPULER
-          </h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
-            {popularProducts.map((product) => (
-              <HomeProductCard key={product.id} product={product} />
-            ))}
-          </div>
+        <section>
+          <PopularProductsSlider products={popularProducts} />
         </section>
 
-        {/* Keunggulan Kami */}
-        <section className="py-12 bg-[#183327] text-white rounded-3xl p-8 sm:p-12 space-y-8 shadow-xl">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <h2 className="text-xs font-black tracking-widest text-[#FF5524] uppercase">
-              Keunggulan Kami
-            </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Mengapa Menyewa di Lembah Damar?
-            </h3>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[#162E24] border border-[#234737] p-6 rounded-2xl text-center space-y-3">
-              <div className="w-12 h-12 bg-[#FF5524]/20 text-[#FF5524] rounded-xl flex items-center justify-center mx-auto border border-[#FF5524]/30">
-                <ShieldCheck className="h-6 w-6" />
-              </div>
-              <h4 className="font-extrabold text-lg text-white">Peralatan Steril & Terawat</h4>
-              <p className="text-xs text-stone-300 leading-relaxed">
-                Tenda dan sleeping bag selalu dicuci bersih dan dikeringkan higienis setelah tiap penggunaan.
-              </p>
-            </div>
-
-            <div className="bg-[#162E24] border border-[#234737] p-6 rounded-2xl text-center space-y-3">
-              <div className="w-12 h-12 bg-[#FF5524]/20 text-[#FF5524] rounded-xl flex items-center justify-center mx-auto border border-[#FF5524]/30">
-                <Sparkles className="h-6 w-6" />
-              </div>
-              <h4 className="font-extrabold text-lg text-white">Harga Sewa Bersahabat</h4>
-              <p className="text-xs text-stone-300 leading-relaxed">
-                Tarif sewa terjangkau per hari dengan hitungan transparan tanpa biaya tersembunyi.
-              </p>
-            </div>
-
-            <div className="bg-[#162E24] border border-[#234737] p-6 rounded-2xl text-center space-y-3">
-              <div className="w-12 h-12 bg-[#FF5524]/20 text-[#FF5524] rounded-xl flex items-center justify-center mx-auto border border-[#FF5524]/30">
-                <Truck className="h-6 w-6" />
-              </div>
-              <h4 className="font-extrabold text-lg text-white">Proses Booking Cepat</h4>
-              <p className="text-xs text-stone-300 leading-relaxed">
-                Pilih tanggal, cek ketersediaan otomatis, dan langsung terhubung dengan WhatsApp admin.
-              </p>
-            </div>
-          </div>
-        </section>
 
         {/* How to Rent Steps */}
-        <section className="space-y-6">
+        <section className="space-y-4 sm:space-y-6">
           <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-xs font-black tracking-widest text-[#FF5524] uppercase mb-1">
+            <h2 className="text-[10px] sm:text-xs font-black tracking-widest text-[#FF5524] uppercase mb-0.5 sm:mb-1">
               Cara Penyewaan
             </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+            <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
               4 Langkah Mudah Menyewa Alat
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
             {steps.map((step, idx) => (
               <div
                 key={idx}
-                className="bg-white p-6 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col justify-between space-y-3"
+                className="bg-white p-3 sm:p-6 rounded-xl sm:rounded-2xl border border-stone-200/80 shadow-xs flex flex-col justify-between space-y-1.5 sm:space-y-3"
               >
-                <span className="text-3xl font-black text-[#FF5524]/40 block">
+                <span className="text-xl sm:text-3xl font-black text-[#FF5524]/40 block leading-none">
                   {step.num}
                 </span>
-                <h4 className="font-extrabold text-base text-stone-900">{step.title}</h4>
-                <p className="text-xs text-stone-600 leading-relaxed">{step.desc}</p>
+                <div>
+                  <h4 className="font-extrabold text-xs sm:text-base text-stone-900 leading-tight mb-1 line-clamp-1 sm:line-clamp-none">
+                    {step.title}
+                  </h4>
+                  <p className="text-[10px] sm:text-xs text-stone-600 leading-tight sm:leading-relaxed line-clamp-3 sm:line-clamp-none">
+                    {step.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="space-y-6 bg-white p-8 sm:p-12 rounded-3xl border border-stone-200/80 shadow-xs">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-xs font-black tracking-widest text-[#FF5524] uppercase mb-1">
-              Pertanyaan Umum
-            </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-              Pertanyaan Sering Diajukan (FAQ)
-            </h3>
-          </div>
+        {/* Edukasi & Jurnal Petualang Section */}
+        <HomeEducationSection articles={articles} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {faqs.map((faq, idx) => (
-              <div
-                key={idx}
-                className="bg-[#F7F5F0] p-5 rounded-2xl border border-stone-200/60 space-y-1.5"
-              >
-                <h4 className="font-bold text-stone-900 text-sm flex items-start space-x-2">
-                  <HelpCircle className="h-4 w-4 text-[#FF5524] shrink-0 mt-0.5" />
-                  <span>{faq.q}</span>
-                </h4>
-                <p className="text-xs text-stone-600 pl-6 leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Mitra Kerja Sama & Dokumentasi Galeri */}
-        {(partners.length > 0 || galleryItems.length > 0) && (
-          <section className="space-y-8 bg-white p-8 sm:p-12 rounded-3xl border border-stone-200/80 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-stone-200 pb-4">
-              <div>
-                <span className="text-xs font-black tracking-widest text-[#FF5524] uppercase block mb-1">
-                  Portofolio & Rekam Jejak
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-                  Mitra Kerja Sama & Galeri Kegiatan
-                </h3>
-              </div>
-              <Link
-                href="/galeri"
-                className="inline-flex items-center space-x-1.5 text-xs font-extrabold text-[#FF5524] hover:text-[#E04618] uppercase tracking-wider group"
-              >
-                <span>Buka Halaman Galeri Lengkap</span>
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-
-            {/* Logo Mitra Grid */}
-            {partners.length > 0 && (
-              <div className="space-y-3">
-                <span className="text-[11px] font-extrabold text-stone-500 uppercase tracking-wider block">
-                  Mitra Resmi & Komunitas:
-                </span>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
-                  {partners.map((partner) => (
-                    <div
-                      key={partner.id}
-                      className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80 flex flex-col items-center justify-center text-center space-y-2 group hover:border-[#FF5524]/50 hover:bg-white transition-all shadow-xs"
-                    >
-                      <div className="w-full h-16 rounded-xl flex items-center justify-center p-2 group-hover:scale-105 transition-transform">
-                        <img
-                          src={partner.logoUrl}
-                          alt={partner.name}
-                          className="max-h-full max-w-full object-contain"
-                        />
-                      </div>
-                      <span className="text-xs font-bold text-stone-800 truncate max-w-[120px] block">
-                        {partner.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Gallery Photos Grid */}
-            {galleryItems.length > 0 && (
-              <div className="space-y-3 pt-2">
-                <span className="text-[11px] font-extrabold text-stone-500 uppercase tracking-wider block">
-                  Foto Dokumentasi Terbaru:
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {galleryItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all group hover:border-[#FF5524]/40"
-                    >
-                      <div className="relative h-52 w-full overflow-hidden bg-stone-100">
-                        <img
-                          src={item.imageUrl}
-                          alt={item.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute top-2.5 left-2.5 bg-black/80 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-xs">
-                          {item.category || "Dokumentasi"}
-                        </div>
-                      </div>
-                      <div className="p-4 space-y-1">
-                        <h4 className="font-extrabold text-stone-900 text-sm group-hover:text-[#FF5524] transition-colors truncate">
-                          {item.title}
-                        </h4>
-                        {item.description && (
-                          <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* WhatsApp Banner CTA */}
-        <section className="py-12 bg-[#183327] text-white rounded-3xl text-center space-y-5 px-6 shadow-xl">
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-            Siap Menikmati Petualangan Campingmu?
-          </h2>
-          <p className="text-stone-300 max-w-xl mx-auto text-xs sm:text-sm leading-relaxed">
-            Konsultasikan rencana penyewaanmu atau tanya ketersediaan stok langsung ke CS kami.
-          </p>
-          <div>
-            <a
-              href={`https://wa.me/${waNumber}?text=Halo%20Lembah%20Damar%20Outdoor,%20saya%20ingin%20tanya%20sewa%20alat%20camping.`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center space-x-2 bg-[#FF5524] hover:bg-[#E04618] text-white px-7 py-3.5 rounded-full font-extrabold text-xs uppercase tracking-wider shadow-xl transition-all transform hover:scale-105"
-            >
-              <Phone className="h-4 w-4 fill-white" />
-              <span>Hubungi via WhatsApp</span>
-            </a>
-          </div>
-        </section>
+        {/* Mitra Resmi & Komunitas Section (Logo Saja, Scroll ke Samping) */}
+        <PartnerSlider partners={partners} />
       </main>
 
       <FloatingCartBar />

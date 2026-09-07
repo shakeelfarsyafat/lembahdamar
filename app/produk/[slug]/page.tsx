@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
 import { ProductDetailClient } from "@/components/storefront/product-detail-client";
 import { db } from "@/lib/db/prisma";
@@ -58,7 +57,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-1 bg-[#fcfdfc]">
         <ProductDetailClient product={product} relatedProducts={relatedProducts} />
       </main>

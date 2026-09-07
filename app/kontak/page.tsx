@@ -1,5 +1,5 @@
-import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
+import { SubpageHeader } from "@/components/storefront/subpage-header";
 import { db } from "@/lib/db/prisma";
 import Link from "next/link";
 import { MapPin, Phone, Mail, Clock, ShieldCheck, CheckCircle2, HelpCircle } from "lucide-react";
@@ -67,7 +67,7 @@ export default async function KontakPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F5F0]">
-      <Navbar />
+      <SubpageHeader title="LEMBAH DAMAR KONTAK" />
       <main className="flex-1 bg-[#F7F5F0] py-12 space-y-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           

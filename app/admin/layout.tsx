@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Package,
-  Users,
   Image as ImageIcon,
   Settings,
   LogOut,
@@ -16,6 +15,7 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  Newspaper,
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -33,8 +33,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Pesanan", href: "/admin/bookings", icon: ShoppingBag },
     { name: "Katalog Produk", href: "/admin/products", icon: Package },
+    { name: "Berita", href: "/admin/articles", icon: Newspaper },
     { name: "Galeri & Mitra", href: "/admin/gallery", icon: ImageIcon },
-    { name: "Customer", href: "/admin/customers", icon: Users },
     { name: "Pengaturan", href: "/admin/settings", icon: Settings },
   ];
 

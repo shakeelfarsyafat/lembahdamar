@@ -1,5 +1,5 @@
-import { Navbar } from "@/components/storefront/navbar";
 import { Footer } from "@/components/storefront/footer";
+import { SubpageHeader } from "@/components/storefront/subpage-header";
 import { HelpCircle } from "lucide-react";
 
 export const metadata = {
@@ -33,7 +33,7 @@ export default function FAQPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F5F0]">
-      <Navbar />
+      <SubpageHeader title="LEMBAH DAMAR FAQ" />
       <main className="flex-1 bg-[#F7F5F0] py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="text-center space-y-3">
